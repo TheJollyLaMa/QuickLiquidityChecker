@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.png" type="image/x-icon">
+    <title>Uniswap Liquidity Checker</title>
+
+</head>
+<body>
+    <h2>Liquidity Token Checker</h2>
+    <label for="tokenId">Enter Token ID:</label>
+    
+    <input type="text" id="tokenId" placeholder="Token ID">
+    
+    <button id="checkToken">Check Token</button>
+    <button id="holdToken">Hold Token</button>
+    <button id="releaseToken">Release Token</button>
+
+    <div id="tokenDetails"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,2 +1,2 @@
 # QuickLiquidityChecker
-Liquidity verifier for Quickswap Algebra V3 positions
+Simple liquidity verifier for Quickswap Algebra V1 positions
