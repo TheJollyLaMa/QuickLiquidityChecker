@@ -55,52 +55,13 @@ This app will soon allow students to **lock their LP token** in a **smart contra
 
 ---
 
-<div align="center">
-    <h1>
-        <img src="assets/Web3Storage.png" alt="Web3Storage Logo" width="50" height="50">
-        W3Up Console
-        <img src="assets/IPFS.png" alt="IPFS Logo" width="50" height="50">
-    </h1>
-</div>
-
-The **W3Up Console** allows users to store and manage data using **IPFS**.  
-
-- **All token images** are stored in the **`/assets/`** folder and used dynamically in the app.
-- **Liquidity verification** is handled on-chain using **Ethers.js** and the **Quickswap API**.
-
----
-
-## 🎨 Visual Features  
-- **Token images** are displayed dynamically from the **assets folder**.  
-- **Token addresses** are formatted as:  
-  `0x1B56 ... <img src="assets/USDGLO.png" width="16"> USDGLO <img src="assets/USDGLO.png" width="16"> ... 1B34`  
-- **Dark mode UI** with **neon highlights** for clarity.  
-- **Easy-to-read font** that keeps a **modern, professional feel**.  
-
----
-
-## ⚙ Tech Stack  
-- **Frontend:** HTML, CSS, JavaScript  
-- **Web3 Integration:** Ethers.js  
-- **Liquidity Verification:** Uniswap V3 (Quickswap on Polygon)  
-
----
-
-## 🚀 Future Development  
-- **LP Token Locking Contract** ✅ *(Coming Soon)*  
-- **Video Call & Class Schedule Integration** ✅ *(Coming Soon)*  
-- **Class Reward System** ✅ *(Coming Soon)*  
-
----
-
 ## 📜 License  
 This project is open-source and licensed under **MIT**.  
 
 <div align="center">
-    <img src="assets/GitHub.png" alt="GitHub Logo" width="50" height="50">
-    <img src="assets/Web3Storage.png" alt="Web3Storage Logo" width="50" height="50">
-    <img src="assets/Polygon.png" alt="Polygon Logo" width="50" height="50">
-    <img src="assets/MintMe.png" alt="MintMe Logo" width="50" height="50">
-    <br>
-    <h4>Verifying Liquidity for a Smarter Future 🌐</h4>
+    <img src="assets/USDGLO.png" alt="USDGLO Token" width="100" height="100">
+    <img src="assets/Quickswap.png" alt="Quickswap Logo" width="200" height="200">
+    <img src="assets/Ommm.png" alt="OMMM Token" width="100" height="100">
+
+    <h4>Verifying Liquidity for a Smarter Future </h4>
 </div>
