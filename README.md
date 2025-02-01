@@ -66,6 +66,7 @@ This project is open-source and licensed under **MIT**.
 
 </div>
 <div align="center">
- ☂️   
-⚸🧞‍♂️ Verifying Liquidity for a Smarter Future
+ ☂️ <br/>   
+⚸🧞‍♂️ <br/>
+ Verifying Liquidity for a Smarter Future
 </div>
