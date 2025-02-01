@@ -1,7 +1,7 @@
 <div align="center">
     <img src="assets/USDGLO.png" alt="USDGLO Token" width="100" height="100">
     <img src="assets/Quickswap.png" alt="Quickswap Logo" width="200" height="200">
-    <img src="assets/OMMM.png" alt="OMMM Token" width="100" height="100">
+    <img src="assets/Ommm.png" alt="OMMM Token" width="100" height="100">
 </div>
 
 <div align="center">
