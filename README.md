@@ -61,7 +61,11 @@ This project is open-source and licensed under **MIT**.
 <div align="center">
     <img src="assets/USDGLO.png" alt="USDGLO Token" width="100" height="100">
     <img src="assets/Quickswap.png" alt="Quickswap Logo" width="200" height="200">
+    <img src="assets/Polygon.png" alt="Quickswap Logo" width="200" height="200">
     <img src="assets/Ommm.png" alt="OMMM Token" width="100" height="100">
 
-    <h4>Verifying Liquidity for a Smarter Future </h4>
+</div>
+<div align="center">
+ ☂️   
+⚸🧞‍♂️ Verifying Liquidity for a Smarter Future
 </div>
