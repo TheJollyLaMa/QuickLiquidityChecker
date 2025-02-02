@@ -11,10 +11,49 @@
 <body>
 
     <div class="container">
-        <h2>Quickswap Liquidity Token Checker</h2>
+        
+        <div class="header">
+            <img src="assets/Quickswap.png" alt="Quickswap" class="logo">
+            <h3>Quickswap Liquidity Distribution</h3>
+            <img src="assets/Quickswap.png" alt="Quickswap" class="logo">
+        </div>
 
-        <label for="tokenId">Enter Token ID:</label>
-        <input type="text" id="tokenId" placeholder="Token ID">
+        <div class="token-icons">
+            <img src="assets/USDGLO.png" alt="USDGLO" class="logo">
+            <img src="assets/Ommm.png" alt="Ommm" class="logo">
+        </div>
+
+        <div class="chart-container">
+            <canvas id="liquidityChart" width="400" height="400"></canvas>
+        
+            <!-- Outer Circle LP Tokens -->
+            <div id="outerLpTokens"></div>
+        
+            <!-- Inner Circle LP Tokens -->
+            <div id="innerLpTokens"></div>
+        
+            <!-- Balance Tokens Moving Dynamically -->
+            <img id="outerTokenA" src="assets/USDGLO.png" class="balance-token">
+            <img id="outerTokenB" src="assets/Ommm.png" class="balance-token">
+            <img id="innerTokenA" src="assets/InnerTokenA.png" class="balance-token">
+            <img id="innerTokenB" src="assets/InnerTokenB.png" class="balance-token">
+        </div>
+        <hr>
+
+        <h1> Liquidity Token Checker</h1>
+        <h3>Enter Your Liquidity Token ID</h3>
+    
+        <div class="input-container">
+            <div class="liquidity-range">
+                <label for="tokenIdInfinity">0 - ♾️ Token ID:</label>
+                <input type="text" id="tokenIdInfinity" placeholder="Enter ID">
+            </div>
+    
+            <div class="liquidity-range">
+                <label for="tokenIdTargeted">0.044430 - 1.0811 Token ID:</label>
+                <input type="text" id="tokenIdTargeted" placeholder="Enter ID">
+            </div>
+        </div>
         
         <div class="buttons">
             <button id="checkToken">Check Token</button>
@@ -23,10 +62,26 @@
         </div>
 
         <div id="tokenDetails" class="token-details"></div>
+
+        <h3>Your LP Tokens</h3>
+        <img id="userLpNftImage" class="lp-nft" />
+
+        <h3>The Seed Liquidity ⚸🌱🧞‍♂️</h3>
+        <div id="lpGallery">
+            <div class="lp-container">
+                <p><b>Token ID: 150843</b></p>
+                <img id="lpNftImage1" class="lp-nft" />
+            </div>
+            <div class="lp-container">
+                <p><b>Token ID: 150879</b></p>
+                <img id="lpNftImage2" class="lp-nft" />
+            </div>
+        </div>
+
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <script src="app.js"></script>
-
+    <script src="nft.js"></script>
 </body>
 </html>

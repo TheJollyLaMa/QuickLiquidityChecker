@@ -5,6 +5,12 @@ const signer = provider.getSigner();
 const ALGEBRA_POSITION_MANAGER = "0x8eF88E4c7CfbbaC1C163f7eddd4B578792201de6"; // Algebra Positions NFT-V1 on QuickSwap
 let ALGEBRA_ABI = [];
 
+// Store liquidity positions for visualization
+let liquidityPositions = {};
+let previousTick = 0;
+const maxLiquiditySeats = 12;
+let lockedTokens = new Set();
+
 // Load ABI dynamically before contract initialization
 async function loadABI() {
     try {
@@ -15,7 +21,7 @@ async function loadABI() {
     }
 }
 
-// Initialize contract **after** ABI is loaded
+// Initialize contract after ABI is loaded
 async function getContract() {
     if (ALGEBRA_ABI.length === 0) await loadABI();
     return new ethers.Contract(ALGEBRA_POSITION_MANAGER, ALGEBRA_ABI, provider);
@@ -26,59 +32,73 @@ function tickToPrice(tick) {
     return Math.pow(1.0001, tick);
 }
 
-// Fetch token symbol & decimals
-async function getTokenData(tokenAddress) {
+// Fetch tickLower, tickUpper & current tick
+async function updateLiquidityVisualization(tokenId) {
     try {
-        const tokenABI = ["function symbol() view returns (string)", "function decimals() view returns (uint8)"];
-        const tokenContract = new ethers.Contract(tokenAddress, tokenABI, provider);
-        const symbol = await tokenContract.symbol();
-        const decimals = await tokenContract.decimals();
-        return { symbol, decimals };
+        if (!tokenId || lockedTokens.has(tokenId)) return;
+
+        const contract = await getContract();
+        const position = await contract.positions(tokenId);
+        const { token0, token1, tickLower, tickUpper, liquidity } = position;
+
+        if (liquidity.isZero()) {
+            console.warn(`Liquidity position for ${tokenId} has no funds.`);
+            return;
+        }
+
+        // Convert tick to price
+        const lowerPrice = tickToPrice(tickLower);
+        const upperPrice = tickToPrice(tickUpper);
+
+        const currentTick = await getCurrentTick(token0, token1);
+        const currentPrice = tickToPrice(currentTick);
+
+        // Store tick ranges for drawing circles
+        liquidityPositions[tokenId] = {
+            lowerTick: tickLower,
+            upperTick: tickUpper,
+            liquidity,
+        };
+
+        // Determine tick movement direction
+        const tickMoveUp = currentTick > previousTick;
+        previousTick = currentTick;
+
+        drawLiquidityVisualization(tickMoveUp ? "indigo" : "purple");
     } catch (error) {
-        console.error(`Error fetching token data for ${tokenAddress}:`, error);
-        return { symbol: "Unknown", decimals: 18 };
+        console.error(`Error updating liquidity for token ${tokenId}:`, error);
     }
 }
 
-// Get current tick using the pool contract
-// Get current tick using the pool contract
+// Fetch the current tick price
 async function getCurrentTick(token0, token1) {
     try {
         const contract = await getContract();
-        const factoryAddress = await contract.factory(); // Get factory address
-        console.log("Factory Address:", factoryAddress);
+        const factoryAddress = await contract.factory();
 
-        // Load the Factory ABI
         const factory_response = await fetch("factory_abi.json");
         const factoryABI = await factory_response.json();
 
-        // Connect to the factory contract
         const factoryContract = new ethers.Contract(factoryAddress, factoryABI, provider);
 
-        console.log("Factory Contract:", factoryContract);
-
-        // Fetch the pool address using `poolByPair`
         const poolAddress = await factoryContract.poolByPair(token0, token1);
         if (poolAddress === ethers.constants.AddressZero) {
             console.error("No pool found for this token pair.");
             return null;
         }
 
-        console.log("Pool Address:", poolAddress);
-
-        // Load Pool ABI
         const pool_response = await fetch("pool_abi.json");
         const poolABI = await pool_response.json();
         const poolContract = new ethers.Contract(poolAddress, poolABI, provider);
-        console.log("Pool Contract:", poolContract);
 
-        // Fetch globalState() instead of slot0()
         const globalState = await poolContract.globalState();
-        console.log("Global State Data:", globalState);
-        
-        const currentTick = globalState.tick; // Correctly extract the tick value
+        if (!globalState || typeof globalState.tick === "undefined") {
+            console.error("Error: globalState.tick is undefined.");
+            return null;
+        }
+
+        const currentTick = ethers.BigNumber.from(globalState.tick).toNumber();
         console.log("Current Tick:", currentTick);
-        
         return currentTick;
 
     } catch (error) {
@@ -87,85 +107,93 @@ async function getCurrentTick(token0, token1) {
     }
 }
 
-// Check if token position is valid
-async function checkLiquidity(tokenId) {
-    try {
-        console.log("Fetching position for Token ID:", tokenId);
+// Draw Liquidity Visualization
+function drawLiquidityVisualization(glowColor = "rgba(255, 255, 255, 0.8)") {
+    const canvas = document.getElementById("liquidityChart");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        const contract = await getContract();
-        const position = await contract.positions(tokenId);
-        console.log("Position Data:", position);
+    // Draw SecretPyramid watermark
+    const pyramidImg = new Image();
+    pyramidImg.src = "assets/SecretPyramid.png";
+    pyramidImg.onload = function () {
+        ctx.globalAlpha = 0.2;
+        ctx.drawImage(pyramidImg, 50, 50, 300, 300);
+        ctx.globalAlpha = 1;
+    };
 
-        const { token0, token1, tickLower, tickUpper, liquidity } = position;
+    // Set opacity based on liquidity locked
+    const liquidityOpacity = Math.min(1, lockedTokens.size / maxLiquiditySeats);
+    const glowEffect = liquidityOpacity * 20; // Adjust the glow intensity
+    
+    ctx.shadowBlur = glowEffect;
+    ctx.shadowColor = `rgba(255, 0, 255, ${liquidityOpacity})`;
+    ctx.fill();
+    
+    // Draw liquidity positions
+    Object.values(liquidityPositions).forEach(({ lowerTick, upperTick }) => {
+        const lowerRadius = Math.max(30, Math.abs(lowerTick) / 10);
+        const upperRadius = Math.max(60, Math.abs(upperTick) / 10);
 
-        if (liquidity.isZero()) {
-            console.warn("Liquidity position has no funds.");
-            document.getElementById("tokenDetails").innerHTML = `<p>❌ Liquidity position has no funds.</p>`;
-            return;
-        }
+        // Outer Liquidity Range (Upper Tick)
+        ctx.beginPath();
+        ctx.arc(200, 200, upperRadius, 0, 2 * Math.PI);
+        ctx.fillStyle = `rgba(0, 255, 234, ${liquidityOpacity})`;
+        ctx.fill();
 
-        // Convert ticks to prices
-        const lowerPrice = tickToPrice(tickLower);
-        const upperPrice = tickToPrice(tickUpper);
-        const currentTick = await getCurrentTick(token0, token1);
-        const currentPrice = tickToPrice(currentTick);
+        // Inner Liquidity Range (Lower Tick)
+        ctx.beginPath();
+        ctx.arc(200, 200, lowerRadius, 0, 2 * Math.PI);
+        ctx.fillStyle = `rgba(255, 0, 255, ${liquidityOpacity})`;
+        ctx.fill();
+    });
 
-        // Fetch token metadata
-        const token0Data = await getTokenData(token0);
-        const token1Data = await getTokenData(token1);
+    // Align LP Token Icons
+    positionLpTokens();
 
-        // Convert liquidity properly
-        const liquidity0 = parseFloat(ethers.utils.formatUnits(liquidity, token0Data.decimals)) / currentPrice;
-        const liquidity1 = parseFloat(ethers.utils.formatUnits(liquidity, token1Data.decimals)) * currentPrice;
-
-        console.log(`Liquidity for ${token0Data.symbol}:`, liquidity0);
-        console.log(`Liquidity for ${token1Data.symbol}:`, liquidity1);
-
-        // Expected Ranges
-        const validRanges = [
-            { min: 0, max: Infinity, minLiquidity: 49.99, maxLiquidity: 600, label: "Infinity Token" },
-            { min: 0.044430, max: 1.081118, minLiquidity: 49.99, maxLiquidity: 1606, label: "Targeted Token" }
-        ];
-
-        let range0Match = lowerPrice >= validRanges[0].min && upperPrice <= validRanges[0].max;
-        let range1Match = lowerPrice >= validRanges[1].min && upperPrice <= validRanges[1].max;
-
-        let liquidity0Match = liquidity0 >= validRanges[0].minLiquidity && liquidity0 <= validRanges[0].maxLiquidity;
-        let liquidity1Match = liquidity1 >= validRanges[1].minLiquidity && liquidity1 <= validRanges[1].maxLiquidity;
-
-        const isEligible = (range0Match && liquidity0Match) || (range1Match && liquidity1Match);
-
-        // Format display
-        const formattedToken0 = `${token0.slice(0, 6)}...<img src="assets/${token0Data.symbol}.png" class="token-icon"> ${token0Data.symbol} <img src="assets/${token0Data.symbol}.png" class="token-icon">...${token0.slice(-4)}`;
-        const formattedToken1 = `${token1.slice(0, 6)}...<img src="assets/${token1Data.symbol}.png" class="token-icon"> ${token1Data.symbol} <img src="assets/${token1Data.symbol}.png" class="token-icon">...${token1.slice(-4)}`;
-
-        document.getElementById("tokenDetails").innerHTML = `
-            <p><b>Token ID:</b> ${tokenId}</p>
-            <p><b>Token 0:</b> ${formattedToken0}</p>
-            <p><b>Token 1:</b> ${formattedToken1}</p>
-            <p><b>Tick Lower:</b> ${tickLower} → Price: ${lowerPrice.toFixed(6)}</p>
-            <p><b>Tick Upper:</b> ${tickUpper} → Price: ${upperPrice.toFixed(6)}</p>
-            <p><b>Current Price:</b> ${currentPrice.toFixed(6)}</p>
-            <p><b>Liquidity (Token 0):</b> ${liquidity0.toFixed(2)}</p>
-            <p><b>Liquidity (Token 1):</b> ${liquidity1.toFixed(2)}</p>
-            <p><b>Range 0 Status:</b> ${range0Match ? "✅ Correct Range" : "❌ Incorrect Range"}</p>
-            <p><b>Liquidity 0 Status:</b> ${liquidity0Match ? "✅ Correct Liquidity" : "❌ Incorrect Liquidity"}</p>
-            <p><b>Range 1 Status:</b> ${range1Match ? "✅ Correct Range" : "❌ Incorrect Range"}</p>
-            <p><b>Liquidity 1 Status:</b> ${liquidity1Match ? "✅ Correct Liquidity" : "❌ Incorrect Liquidity"}</p>
-            <p><b>Final Status:</b> ${isEligible ? "✅ Eligible for Class" : "❌ Not Eligible - Adjust Liquidity or Range"}</p>
-        `;
-    } catch (error) {
-        console.error("Error fetching position:", error);
-        document.getElementById("tokenDetails").innerHTML = `<p>❌ Error fetching token details.</p>`;
-    }
+    // Align Balance Tokens
+    updateTokenBalancePositions();
 }
 
-// Event Listeners
-document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("checkToken").addEventListener("click", async () => {
-        const tokenId = document.getElementById("tokenId").value;
-        if (tokenId) {
-            await checkLiquidity(tokenId);
+// 🔥 Fix: Properly position LP tokens around circles
+function positionLpTokens() {
+    const outerContainer = document.getElementById("outerLpTokens");
+    const innerContainer = document.getElementById("innerLpTokens");
+
+    outerContainer.innerHTML = "";
+    innerContainer.innerHTML = "";
+
+    let indexOuter = 0, indexInner = 0;
+    Object.entries(liquidityPositions).forEach(([tokenId, { lowerTick, upperTick }]) => {
+        const tokenElement = document.createElement("img");
+        tokenElement.src = "assets/lp-token.png"; 
+        tokenElement.classList.add("lp-token");
+
+        // Align properly within circles
+        tokenElement.style.position = "absolute";
+        tokenElement.style.bottom = "50px"; 
+        tokenElement.style.left = `${180 + (indexOuter * 35)}px`;
+
+        if (upperTick > 10000) {
+            outerContainer.appendChild(tokenElement);
+            indexOuter++;
+        } else {
+            innerContainer.appendChild(tokenElement);
+            indexInner++;
         }
     });
-});
+}
+
+// 🔥 Fix: Rotate balance tokens correctly
+function updateTokenBalancePositions() {
+    const balanceRatio = Math.random();
+    const angle = balanceRatio * Math.PI * 2; 
+
+    document.getElementById("outerTokenA").style.transform = `translate(${120 * Math.cos(angle)}px, ${120 * Math.sin(angle)}px)`;
+    document.getElementById("outerTokenB").style.transform = `translate(${120 * Math.cos(-angle)}px, ${120 * Math.sin(-angle)}px)`;
+    
+    document.getElementById("innerTokenA").style.transform = `translate(${60 * Math.cos(angle)}px, ${60 * Math.sin(angle)}px)`;
+    document.getElementById("innerTokenB").style.transform = `translate(${60 * Math.cos(-angle)}px, ${60 * Math.sin(-angle)}px)`;
+}
+
+setInterval(drawLiquidityVisualization, 5000);
