@@ -5,6 +5,8 @@
 </div>
 
 <div align="center">
+ ☂️ <br/>   
+⚸ 🧞‍♂️ <br/>
     <h1>Quickswap Liquidity Checker</h1>
     <h3>Liquidity Verification for USDGLO/OMMM on Polygon</h3>
 </div>
@@ -67,6 +69,6 @@ This project is open-source and licensed under **MIT**.
 </div>
 <div align="center">
  ☂️ <br/>   
-⚸🧞‍♂️ <br/>
+⚸ 🧞‍♂️ <br/>
  Verifying Liquidity for a Smarter Future
 </div>
