@@ -171,7 +171,7 @@ async function getNFTData(tokenId) {
         const metadata = await response.json();
         if (!metadata.image) throw new Error(`No image found for ${tokenId}`);
 
-        console.log(`✅ Fetched NFT ${tokenId}:`, metadata);
+        // console.log(`✅ Fetched NFT ${tokenId}:`, metadata);
         return metadata;
     } catch (error) {
         console.error(`❌ Error fetching NFT ${tokenId} data:`, error);
@@ -184,6 +184,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     await initializeProvider();
     await loadABIs();
     
+    await checkTokens();
 
     // ✅ Load NFTs
     await loadLiquidityNFTs();
