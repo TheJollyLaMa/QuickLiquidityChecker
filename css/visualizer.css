@@ -15,7 +15,7 @@
     height: 400px;
     position: relative;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(0, 255, 234, 0.3) 0%, rgba(0, 255, 234, 0.05) 80%);
+    background: radial-gradient(circle, rgba(0, 255, 234, 0.142) 0%, rgba(234, 255, 0, 0.05) 80%);
     box-shadow: 0px 0px 25px rgba(0, 255, 234, 0.8);
     border: 2px solid rgba(0, 255, 234, 0.6);
     display: flex;
@@ -58,14 +58,21 @@
 }
 
 .ommm-inner {
-    right: 20px;
+    right: 18px;
     top: 50%;
     transform: translateY(-50%);
+
+
+}
+.tokens {
+    border-radius: 50%;
+    box-shadow: 0px 0px 10px rgb(0, 255, 234), 0px 0px 15px rgb(247, 252, 96);
+    z-index: 100
 }
 
 /* Outer LP Tokens */
 #outerLpTokens {
-    background: rgba(0, 255, 238, 0.2);
+    background: rgba(0, 255, 238, 0);
     border-radius: 50%;
     width: 90%;
     height: 90%;
@@ -75,12 +82,15 @@
 
 /* Inner LP Tokens */
 #innerLpTokens {
-    background: rgba(30, 0, 255, 0.4);
+    background: rgba(30, 0, 255, 0.107);
     border-radius: 50%;
+    border: 10px solid rgba(251, 255, 0, 0.509);
     width: 60%;
     height: 60%;
     animation: pulseGlow 3s infinite ease-in-out;
     position: absolute;
+    box-shadow: 0px 0px 15px rgba(242, 245, 42, 0.599);
+    
 }
 
 /* Current Tick - Center */
@@ -93,38 +103,45 @@
     box-shadow: 0px 0px 15px rgba(233, 253, 103, 0.8);
 }
 
-/* Liquidity NFTs - Positioned at Bottom */
-.liquidity-nft {
-    position: absolute;
-    height: auto;
-    z-index: 10;
-}
-
-/* Broad Range NFT (Outside Outer Circle) */
-.broad-range-nft {
-    width: 43px;
-    bottom: -75px; /* Moves it lower */
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-/* Targeted Range NFT (Outside Inner Circle) */
-.targeted-range-nft {
-    width: 35px;
-    bottom: 20px; /* Moves it slightly higher */
-    left: 50%;
-    transform: translateX(-50%);
-}
-
 .current-price {
     position: absolute;
     top: 55%;
     left: 50%;
     transform: translateX(-50%);
     background-color: rgba(0, 0, 0, 0.7);
-    color: #00ffea;
+    color: #f2fb4c;
     padding: 5px 10px;
     border-radius: 5px;
     font-family: 'Orbitron', sans-serif;
     font-size: 14px;
+    text-shadow: 0px 0px 5px rgb(255, 255, 255);
+}
+
+
+/* General NFT Styling */
+/* General NFT Styling */
+.liquidity-nft {
+    position: absolute;
+    height: auto;
+    max-width: 75px;  /* Slightly larger */
+    max-height: 110px; /* Increased height */
+    z-index: 10;
+    opacity: 0.3;
+}
+
+/* Outer Bowl (Broad Range) - Slightly Larger */
+.broad-range-nft {
+    width: 85px;  /* Increased */
+    height: auto;
+}
+
+/* Inner Bowl (Targeted Range) - Slightly Smaller */
+/* Inner Bowl (Targeted Range) - Much Smaller */
+.targeted-range-nft {
+    width: 42px !important;  /* Force this size */
+    height: auto !important;
+    max-width: 42px !important;
+    max-height: 60px !important;
+    
+    z-index: 11; /* Ensure it's visible */
 }
