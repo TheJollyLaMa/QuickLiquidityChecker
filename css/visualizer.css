@@ -1,11 +1,11 @@
-/* Liquidity Visualization */
+/* Ensure Visualizer is Centered */
 .visualizer-container {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
     max-width: 500px;
-    margin: 0 auto;
+    margin: 0;
     position: relative;
 }
 
@@ -21,8 +21,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto;
+    margin: 0;
 }
+
 
 /* Outer Circle Tokens */
 .usdglo-outer, .ommm-outer {

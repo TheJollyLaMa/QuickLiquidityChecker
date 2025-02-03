@@ -16,6 +16,7 @@ body {
 
 /* Header */
 .header {
+    margin-top: 10px;
     text-align: center;
 }
 
@@ -63,7 +64,7 @@ h3 {
 
 /* Liquidity Checker Section */
 .liquidity-checker {
-    margin: 20px 0;
+    margin: 80px;
 }
 
 .liquidity-checker input {
@@ -79,11 +80,12 @@ h3 {
     color: white;
     border: none;
     padding: 10px 15px;
-    margin-left: 10px;
+    margin: 20px;
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
     transition: 0.3s;
+
 }
 
 .liquidity-checker button:hover {
@@ -93,7 +95,6 @@ h3 {
 /* Fix Parent Container for Visualizer Centering */
 .container {
     background: rgba(0, 0, 0, 0);
-    padding: 20px;
     border-radius: 15px;
     /* box-shadow: 0px 0px 20px rgba(0, 255, 234, 0.8); */
     width: 100%; /* Ensure full width */
