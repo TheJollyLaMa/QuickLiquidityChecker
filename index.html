@@ -3,85 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="favicon.png" type="image/x-icon">
     <title>Quickswap Liquidity Checker</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Shadows+Into+Light&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/visualizer.css">
+    <link rel="shortcut icon" href="./assets/favicon.png" type="image/x-icon">
 </head>
 <body>
-
-    <div class="container">
-        
-        <div class="header">
-            <img src="assets/Quickswap.png" alt="Quickswap" class="logo">
-            <h3>Quickswap Liquidity Distribution</h3>
-            <img src="assets/Quickswap.png" alt="Quickswap" class="logo">
+    <header class="header">
+        <div class="icon-container">
+            <img src="assets/USDGLO.png" alt="USDGLO Token" class="icon small">
+            <img src="assets/Quickswap.png" alt="Quickswap Logo" class="icon large">
+            <img src="assets/Ommm.png" alt="OMMM Token" class="icon small">
         </div>
-
-        <div class="token-icons">
-            <img src="assets/USDGLO.png" alt="USDGLO" class="logo">
-            <img src="assets/Ommm.png" alt="Ommm" class="logo">
-        </div>
-
-        <div class="chart-container">
-            <canvas id="liquidityChart" width="400" height="400"></canvas>
-        
-            <!-- Outer Circle LP Tokens -->
-            <div id="outerLpTokens"></div>
-        
-            <!-- Inner Circle LP Tokens -->
-            <div id="innerLpTokens"></div>
-        
-            <!-- Balance Tokens Moving Dynamically -->
-            <img id="outerTokenA" src="assets/USDGLO.png" class="balance-token">
-            <img id="outerTokenB" src="assets/Ommm.png" class="balance-token">
-            <img id="innerTokenA" src="assets/InnerTokenA.png" class="balance-token">
-            <img id="innerTokenB" src="assets/InnerTokenB.png" class="balance-token">
-        </div>
-        <hr>
-
-        <h1> Liquidity Token Checker</h1>
-        <h3>Enter Your Liquidity Token ID</h3>
+        <h1>Quickswap Liquidity Checker</h1>
+        <h3>Liquidity Verification for USDGLO/OMMM on Polygon</h3>
+    </header>
     
-        <div class="input-container">
-            <div class="liquidity-range">
-                <label for="tokenIdInfinity">0 - ♾️ Token ID:</label>
-                <input type="text" id="tokenIdInfinity" placeholder="Enter ID">
+    <main>
+        <br>
+        <div class="container">
+            <h2>Liquidity Visualization</h2>
+            <div class="visualizer-container">
+                <div class="chart-container">
+                    <!-- Outer Circle Tokens -->
+                    <img src="assets/USDGLO.png" alt="USDGLO Token" class="usdglo-outer">
+                    <img src="assets/Ommm.png" alt="OMMM Token" class="ommm-outer">
+                    
+                    <!-- Outer Liquidity -->
+                    <div id="outerLpTokens"></div>
+                    
+                    <!-- Inner Circle Tokens -->
+                    <img src="assets/USDGLO.png" alt="USDGLO Token" class="usdglo-inner">
+                    <img src="assets/Ommm.png" alt="OMMM Token" class="ommm-inner">
+                    
+                    <!-- Inner Liquidity -->
+                    <div id="innerLpTokens"></div>
+                    
+                    <!-- Current Tick (Price) -->
+                    <div class="current-tick"></div>
+                </div>
             </div>
+        </div>
+        <br><br>
+        <section class="liquidity-checker">
+            <h2>Liquidity Token Checker</h2>
+            <p>Enter your Liquidity Position NFT ID to verify eligibility for class access.</p>
+            <input type="text" id="token-id" placeholder="Enter Liquidity Token ID">
+            <button type="button" onclick="checkLiquidity()">Check</button>
+        </section>
+        <br><br>
+    </main>
     
-            <div class="liquidity-range">
-                <label for="tokenIdTargeted">0.044430 - 1.0811 Token ID:</label>
-                <input type="text" id="tokenIdTargeted" placeholder="Enter ID">
-            </div>
+    <footer>
+        <div class="icon-container">
+            <img src="assets/USDGLO.png" alt="USDGLO Token" class="icon small">
+            <img src="assets/Quickswap.png" alt="Quickswap Logo" class="icon medium">
+            <img src="assets/Polygon.png" alt="Polygon Logo" class="icon large">
+            <img src="assets/Quickswap.png" alt="Quickswap Logo" class="icon medium">
+            <img src="assets/Ommm.png" alt="OMMM Token" class="icon small">
         </div>
-        
-        <div class="buttons">
-            <button id="checkToken">Check Token</button>
-            <button id="holdToken" disabled>Hold Token</button>
-            <button id="releaseToken" disabled>Release Token</button>
-        </div>
+        <p> ☂️</p>
+        <p>⚸ 🧞‍♂️</p>
+        <p> Verifying Liquidity for a Smarter Future</p>
+    </footer>
 
-        <div id="tokenDetails" class="token-details"></div>
-
-        <h3>Your LP Tokens</h3>
-        <img id="userLpNftImage" class="lp-nft" />
-
-        <h3>The Seed Liquidity ⚸🌱🧞‍♂️</h3>
-        <div id="lpGallery">
-            <div class="lp-container">
-                <p><b>Token ID: 150843</b></p>
-                <img id="lpNftImage1" class="lp-nft" />
-            </div>
-            <div class="lp-container">
-                <p><b>Token ID: 150879</b></p>
-                <img id="lpNftImage2" class="lp-nft" />
-            </div>
-        </div>
-
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-    <script src="app.js"></script>
-    <script src="nft.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.0/ethers.umd.min.js"></script>
+    <script defer src="js/app.js"></script>
 </body>
 </html>

@@ -1,0 +1,84 @@
+/* Liquidity Chart Styling */
+.chart-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    box-shadow: 0px 0px 25px rgba(0, 255, 234, 0.8);
+    width: 400px;
+    height: 400px;
+    margin: auto;
+}
+
+/* Liquidity Positioning */
+#outerLpTokens, #innerLpTokens {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+/* Outer Circle Tokens */
+#outerTokenA, #outerTokenB {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    transition: transform 0.5s ease-in-out;
+    transform-origin: center;
+}
+
+/* Inner Circle Tokens */
+#innerTokenA, #innerTokenB {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    transition: transform 0.5s ease-in-out;
+    transform-origin: center;
+}
+
+/* LP Tokens Inside the Circles */
+.lp-token {
+    width: 30px;
+    height: 30px;
+    transition: transform 0.5s ease-in-out;
+    position: absolute;
+}
+
+/* Fix LP NFT positioning */
+.lp-nft {
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 255, 234, 0.8);
+    width: 100px;
+    height: 100px;
+    position: absolute;
+    transition: none; /* No animations */
+}
+
+/* Fix Balance Token Positioning */
+.balance-token {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    transition: none; /* Remove random movement */
+}
+
+/* Current Tick Positioning */
+.tick-dot {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background-color: #ff00ff;
+    border-radius: 50%;
+    box-shadow: 0px 0px 10px rgba(255, 0, 255, 0.9);
+}
+
+/* Price Text Positioning */
+.tick-price {
+    position: absolute;
+    color: #ff00ff;
+    font-weight: bold;
+    font-size: 14px;
+}
