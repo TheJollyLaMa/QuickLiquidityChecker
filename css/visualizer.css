@@ -145,3 +145,90 @@
     
     z-index: 11; /* Ensure it's visible */
 }
+/* Style for Liquidity Labels */
+.liquidity-display {
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #00ffea;
+    padding: 15px;
+    border-bottom: 2px solid #00ffea;
+    box-shadow: 0px 2px 10px rgba(0, 255, 234, 0.5);
+}
+/* Outer Liquidity (Broad Range) */
+.outer-liquidity {
+    position: absolute;
+    font-size: 32px;
+    font-weight: bold;
+    white-space: nowrap;
+    text-shadow: 0px 0px 10px #0062ff, 0px 0px 10px #c8ff00, 0px 0px 20px #7b00ff;
+
+}
+
+/* ✅ Correct USDGLO position */
+.outer-liquidity.usdglo {
+    top: 45%; /* ✅ Lower the text */
+    left: -260px; /* ✅ Move further left */
+    color: #00ffea;
+    width: 150px; /* ✅ Make wider */
+    text-align: center;
+    
+}
+
+/* ✅ Correct OMMM position */
+.outer-liquidity.ommm {
+    top: 45%; /* ✅ Lower the text */
+    right: -260px; /* ✅ Move further right */
+    color: #00ffea;
+    width: 150px; /* ✅ Make wider */
+    text-align: center;
+}
+
+/* Inner Liquidity (Targeted Range) */
+.inner-liquidity {
+    position: absolute;
+    font-size: 18px;  /* Bigger for visibility */
+    font-weight: bold;
+    white-space: nowrap;
+    text-shadow: 0px 0px 10px #ffd700, 0px 0px 10px #ffdd00, 0px 0px 20px #ffae00;
+}
+
+/* ✅ Position USDGLO (Inner Circle, Left) */
+.inner-liquidity.usdglo {
+    top: 48%;  /* Move slightly above */
+    left: 35%; /* Position to left of dot */
+    transform: translate(-50%, -50%);
+    color: #f2fb4c;
+}
+
+/* ✅ Position OMMM (Inner Circle, Right) */
+.inner-liquidity.ommm {
+    top: 48%;  /* Move slightly above */
+    right: 35%; /* Position to right of dot */
+    transform: translate(50%, -50%);
+    color: #f2fb4c;
+}
+
+
+/* ✅ Inner Token Movement */
+.moving-token {
+    position: absolute;
+    width: 30px; /* Match inner token size */
+    height: auto;
+    transition: transform 1s ease-in-out;
+}
+
+/* ✅ Ensure Starting Positions */
+.moving-token.usdglo {
+    left: 40%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* ✅ Inner Token Movement */
+.moving-token {
+    position: absolute;
+    width: 32px; /* Match inner token size */
+    height: auto;
+    transition: left 1s ease-in-out, top 1s ease-in-out;
+}
