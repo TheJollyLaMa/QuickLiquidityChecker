@@ -209,22 +209,6 @@
     color: #f2fb4c;
 }
 
-
-/* ✅ Inner Token Movement */
-.moving-token {
-    position: absolute;
-    width: 30px; /* Match inner token size */
-    height: auto;
-    transition: transform 1s ease-in-out;
-}
-
-/* ✅ Ensure Starting Positions */
-.moving-token.usdglo {
-    left: 40%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-}
-
 /* ✅ Inner Token Movement */
 .moving-token {
     position: absolute;

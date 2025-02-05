@@ -6,10 +6,16 @@
     <title>Quickswap Liquidity Checker</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/visualizer.css">
+    <link rel="stylesheet" href="css/lp_contract.css">
     <link rel="shortcut icon" href="./assets/favicon.png" type="image/x-icon">
 </head>
 <body>
     <header class="header">
+        <!-- Sponsor Button -->
+        <button id="sponsor-btn" class="sponsor-button">
+            <img src="assets/SHT.png" alt="Sponsor"><br>
+            Sponsor
+        </button>
         <div class="icon-container">
             <img src="assets/USDGLO.png" alt="USDGLO Token" class="icon small">
             <img src="assets/Quickswap.png" alt="Quickswap Logo" class="icon large">
@@ -21,6 +27,40 @@
     </header>
     <main>
         <br>
+    <!-- Sponsor Modal -->
+    <div id="sponsor-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeSponsorModal()">&times;</span>
+
+            <!-- SecretPyramid Image -->
+            <img src="assets/SecretPyramid.png" alt="Secret Pyramid" class="secret-pyramid">
+            <br>
+            <!-- total rewards loaded on contract -->
+            <p id="total-rewards">Loading rewards...</p>
+            <br>
+            <h2>Deposit Rewards</h2>
+            <p>Support the community by depositing SHT tokens! Smart Home Test tokens are the official sponsor of this first academic expriment! While the student's LP tokens are locked in the contract, they earn a portion of the sponsored rewards to help them with everyday needs around their home. Buy SmartHomeTest tokens on a decent exchange and deposit them here to support the students as they learn.</p>
+            <a href="https://quickswap.exchange/#/swap?swapIndex=0&currency0=0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359&currency1=0x81cCeF6414D4CDbed9FD6Ea98c2D00105800cd78" target="_blank" class="button sht-link">
+                <img src="assets/SHT.png" alt="Smart Home Test Token" class="sht-icon"><br>
+                Buy SHT on Quickswap
+            </a><br>
+            <label for="sponsor-amount">Amount (SHT):</label>
+            <input type="number" id="sponsor-amount" placeholder="Enter amount" min="1">
+
+            <label for="sponsor-note">Note (optional):</label>
+            <textarea id="sponsor-note" placeholder="Leave a note"></textarea>
+
+            <button id="sponsor-submit">Submit</button>
+            <br><br>
+            <!-- Sponsor Leaderboard -->
+            <div id="sponsor-list" class="sponsor-list">
+                <h3>🏆 Top Sponsors</h3>
+                <p>Loading...</p>
+            </div>
+
+        </div>
+    </div>
+
         <div class="container">
             <h2>Liquidity Visualization</h2>
             <br><br>
@@ -96,6 +136,7 @@
     <script defer src="js/app.js"></script>
     <script defer src="js/tokeninfo.js"></script>
 
+    <script defer src="js/lpLock_Stake_Farm.js"></script>
 
 </body>
 </html>

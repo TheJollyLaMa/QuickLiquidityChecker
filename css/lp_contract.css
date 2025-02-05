@@ -1,0 +1,219 @@
+/* Sponsor Button Styling */
+.sponsor-button {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    width: 100px;
+    height: 100px;
+    color: #9ef8f0;
+    /* comic font */
+    font-family: 'Press Start 2P', cursive;
+    font-size: 16px;
+    padding: 4px;
+    border-radius: 50%;
+    background: transparent;
+    border: 2px solid #00ffea;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+.sponsor-button img {
+    width: 45px;  /* Adjust size */
+    height: auto;
+    filter: drop-shadow(0px 0px 10px rgba(0, 255, 234, 0.8));
+    transition: transform 0.3s ease-in-out;
+}
+
+.sponsor-button:hover {
+    color: #007bff;
+    background-color: rgba(255, 255, 255, 0.623);
+    border: 2px solid #00ff08;
+    transform: scale(1.1);
+    filter: drop-shadow(0px 0px 15px rgba(0, 255, 234, 1));
+    box-shadow: 0px 0px 15px rgba(251, 255, 0, 0.455), 0px 0px 20px rgba(138, 255, 245, 0.632);
+
+}
+
+/* Modal Styling */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+}
+
+/* Modal Content */
+/* Fix Modal Size and Enable Scrolling */
+.modal-content {
+    background: rgba(0, 0, 0, 0.85);
+    padding: 20px;
+    border-radius: 12px;
+    width: 400px; /* Fixed width */
+    max-height: 85vh; /* Prevents modal from stretching */
+    overflow-y: auto; /* Enables scrolling */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 20px rgba(0, 255, 234, 0.6);
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    color: #00ffea;
+}
+
+/* SecretPyramid Icon */
+.modal-content .secret-pyramid {
+    width: 80px;
+    height: auto;
+    border-radius: 50%;
+    background-color: #00000000;
+    margin-bottom: 10px;
+    filter: drop-shadow(0px 0px 12px rgba(255, 223, 0, 0.9));
+}
+
+/* Close Button */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 22px;
+    cursor: pointer;
+    color: #00ffea;
+    transition: 0.3s ease-in-out;
+}
+
+.close-btn:hover {
+    color: #ffd700;
+}
+
+/* Form Elements */
+input, textarea {
+    width: 90%;
+    margin: 10px 0;
+    padding: 8px;
+    border: 1px solid rgba(0, 255, 234, 0.6);
+    background: rgba(0, 0, 0, 0.6);
+    color: #00ffea;
+    font-family: 'Orbitron', sans-serif;
+    text-align: center;
+    border-radius: 5px;
+
+}
+
+textarea {
+    resize: none;
+    height: 60px;
+}
+
+/* Submit Button */
+#sponsor-submit {
+    background: linear-gradient(90deg, #00ffea, #007bff);
+    color: #000;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: 0.3s ease-in-out;
+    text-transform: uppercase;
+}
+
+#sponsor-submit:hover {
+    background: linear-gradient(90deg, #007bff, #00ffea);
+    box-shadow: 0px 0px 15px rgba(0, 255, 234, 1);
+}
+
+.sht-icon {
+    width: 50px;
+    height: auto;
+    border-radius: 50%;
+    background-color: #00000000;
+    border: 2px solid #00ffea;
+    filter: drop-shadow(0px 0px 10px rgba(255, 223, 0, 0.9));
+    margin-bottom: 10px;
+    box-shadow: 0px 0px 15px rgba(255, 223, 0, 0.9);
+}
+
+.sht-link {
+    text-decoration: none;
+    color: #00ffea;
+    font-weight: bold;
+    transition: 0.3s ease-in-out;
+}
+.sht-link:hover {
+    color: #ffd700;
+}
+
+
+.sponsor-list {
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 15px;
+    color: #00ffea;
+    font-family: 'Orbitron', sans-serif;
+    text-align: center;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.sponsor-list p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.sponsor-list strong {
+    color: #ffd700;
+}
+
+/* Rewards Display Layout */
+.rewards-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* Glowing SHT Token */
+.token-container {
+    position: relative;
+    display: inline-block;
+}
+
+.sht-glow {
+    width: 80px;
+    height: auto;
+    filter: drop-shadow(0px 0px 15px rgba(0, 255, 234, 1));
+    transition: transform 0.2s ease-in-out;
+}
+
+.token-container:hover .sht-glow {
+    transform: scale(1.1);
+}
+
+/* Polygon Logo Overlay */
+.polygon-icon {
+    width: 30px;
+    height: auto;
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 2px;
+    box-shadow: 0px 0px 10px rgba(128, 0, 255, 0.8);
+}
+
+.rewards-text {
+    margin-top: 5px;
+    font-size: 18px;
+    color: #00ffea;
+    text-shadow: 0 0 5px #68fd8b, 0 0 10px #68d3fd, 0 0 15px #fdf868;
+}

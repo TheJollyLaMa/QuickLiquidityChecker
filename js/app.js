@@ -2,10 +2,13 @@ let provider, signer;
 
 const ALGEBRA_POSITION_MANAGER = "0x8eF88E4c7CfbbaC1C163f7eddd4B578792201de6";
 const POOL_CONTRACT_ADDRESS = "0xf1a9a6a83077b73f662211b3fdecfa0cf13ceec7";
+const LPLOCK_CONTRACT_ADDRESS = "0x04A0d39e9E60981702B0F36d10F673943982369B"; //first deployed 0435 05Feb2025 on polygon
+const SHT_CONTRACT_ADDRESS = "0x81cCeF6414D4CDbed9FD6Ea98c2D00105800cd78";
 
 let ALGEBRA_ABI = [];
 let POOL_ABI = [];
 let FACTORY_ABI = [];
+let LPLOCK_ABI = [];
 
 // ✅ Initialize provider ONCE
 async function initializeProvider() {
@@ -24,6 +27,9 @@ async function loadABIs() {
         ALGEBRA_ABI = await (await fetch("abis/abi.json")).json();
         FACTORY_ABI = await (await fetch("abis/factory_abi.json")).json();
         POOL_ABI = await (await fetch("abis/pool_abi.json")).json();
+        LPLOCK_ABI = await (await fetch("abis/LPLock_Stake_and_Farm_v0.1_abi.json")).json();
+        ERC20_ABI = await (await fetch("abis/erc20_abi.json")).json();
+
     } catch (error) {
         console.error("❌ Error loading ABIs:", error);
     }
@@ -183,6 +189,8 @@ async function getNFTData(tokenId) {
 document.addEventListener("DOMContentLoaded", async function () {
     await initializeProvider();
     await loadABIs();
+
+    await initializeLPLockContract();
     
     await checkTokens();
 
@@ -191,5 +199,18 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // ✅ Fetch Current Price
     await getCurrentTick();
+
+
+
+    document.getElementById("sponsor-btn").addEventListener("click", openSponsorModal);
+    document.getElementById("sponsor-submit").addEventListener("click", async () => {
+        const amount = document.getElementById("sponsor-amount").value;
+        const note = document.getElementById("sponsor-note").value;
+        await depositRewards(amount, note);
+        closeSponsorModal();
+    });
+
+
+
     setInterval(getCurrentTick, 30000);
 });

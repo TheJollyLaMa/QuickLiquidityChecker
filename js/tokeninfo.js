@@ -94,12 +94,12 @@ function updateTokenPositions(broadToken, targetedToken) {
     console.log(`💰 Liquidity Ratio - USDGLO: ${usdgloRatio}, OMMM: ${ommmRatio}`);
 
     // ✅ Define Initial & Final Angles
-    let usdgloStartAngle = Math.PI * 1.2; // ✅ 10 o’clock
+    let usdgloStartAngle = Math.PI * 1.25; // 🔹 Shifted slightly towards 10
     let usdgloEndAngle = Math.PI * 1.5; // ✅ 12 o’clock (max)
-
-    let ommmStartAngle = Math.PI * 0.8; // ✅ 2 o’clock
+    let ommmStartAngle = Math.PI * 0.75; // 🔹 Shifted slightly towards 2
     let ommmEndAngle = Math.PI * 0.5; // ✅ 12 o’clock (max)
 
+    
     // ✅ Interpolate Position Based on Balance
     let usdgloAngle = usdgloStartAngle + (usdgloRatio * (usdgloEndAngle - usdgloStartAngle));
     let ommmAngle = ommmStartAngle - (ommmRatio * (ommmStartAngle - ommmEndAngle));
@@ -123,6 +123,51 @@ function updateTokenPositions(broadToken, targetedToken) {
     ommmToken.style.top = `${ommmY}px`;
 }
 
+// // ✅ Calculate Outer Balance Position
+function calculateOuterTokenPosition(index, total, radius, containerCenterX, containerCenterY) {
+    // 🔄 Flip the Arc: Upside-down Bowl (Reflect Over Y-Axis)
+    const angle = (index / (total - 1)) * Math.PI; // Maps from 0 to π (0° to 180°)
+
+    const x = containerCenterX + radius * Math.cos(angle);
+    const y = containerCenterY - radius * Math.sin(angle); // 🔄 Flip Y direction
+
+    return { 
+        x: x ,  // ✅ Adjust to center
+        y: y   // ✅ Adjust to center
+    };
+}
+
+function positionOuterBalanceTokens(gloLiquidityRatio, ommmLiquidityRatio) {
+    const container = document.querySelector(".chart-container");
+    const containerRect = container.getBoundingClientRect();
+
+    const containerCenterX = containerRect.width / 2.01;
+    const containerCenterY = containerRect.height / 1.83;
+
+    const outerRadius = containerRect.width * 0.635; // Keep outer radius large
+
+    // ✅ Interpolate GLO & OMMM positions based on liquidity balance
+    let gloIndex = 2 + (gloLiquidityRatio * 8);  // Move from 10 → 12
+    let ommmIndex = 10 - (ommmLiquidityRatio * 8); // Move from 2 → 12
+
+    // ✅ Calculate Positions
+    const gloPosition = calculateOuterTokenPosition(gloIndex, 12, outerRadius, containerCenterX, containerCenterY);
+    const ommmPosition = calculateOuterTokenPosition(ommmIndex, 12, outerRadius, containerCenterX, containerCenterY);
+
+    // ✅ Update DOM Positions
+    const gloToken = document.querySelector(".usdglo-outer");
+    const ommmToken = document.querySelector(".ommm-outer");
+
+    if (gloToken) {
+        gloToken.style.left = `${gloPosition.x}px`;
+        gloToken.style.top = `${gloPosition.y}px`;
+    }
+
+    if (ommmToken) {
+        ommmToken.style.left = `${ommmPosition.x}px`;
+        ommmToken.style.top = `${ommmPosition.y}px`;
+    }
+}
 
 // ✅ Check Tokens & Update UI
 async function checkTokens() {
@@ -184,10 +229,9 @@ function updateLiquidityDetails(broadToken, targetedToken) {
         <div class="inner-liquidity ommm">${targetedToken.amount0}</div>
     `;
 
+    positionOuterBalanceTokens(parseFloat(broadToken.amount1) / 50, parseFloat(broadToken.amount0) / 600);
 
     console.log("✅ UI Updated with Liquidity Values");
-
-    updateTokenPositions(broadToken, targetedToken);
 
 }
 
