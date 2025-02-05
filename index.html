@@ -16,6 +16,11 @@
             <img src="assets/SHT.png" alt="Sponsor"><br>
             Sponsor
         </button>
+        <!-- Sponsee Button (Right Side) -->
+        <button id="sponsee-btn" class="sponsee-button">
+            <img src="assets/SHT.png" alt="Sponsee"><br>
+            Sponsee
+        </button>
         <div class="icon-container">
             <img src="assets/USDGLO.png" alt="USDGLO Token" class="icon small">
             <img src="assets/Quickswap.png" alt="Quickswap Logo" class="icon large">
@@ -58,6 +63,48 @@
                 <p>Loading...</p>
             </div>
 
+        </div>
+    </div>
+
+    <!-- Sponsee Modal -->
+    <div id="sponsee-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeSponseeModal()">&times;</span>
+
+            <!-- SecretPyramid Image -->
+            <img src="assets/SecretPyramid.png" alt="Secret Pyramid" class="secret-pyramid">
+            <br>
+
+            <h2>Your Rewards</h2>
+            <p><strong>Connected Wallet:</strong> <span id="connected-wallet">Loading...</span></p>
+            <p id="nft-status">Checking NFT Lock Status...</p>
+            
+            <div id="locked-nfts" class="locked-nfts">Loading NFTs...</div>
+
+            <br>
+            <!-- Claimable Rewards -->
+            <div id="claimable-rewards" class="rewards-display">
+                <a href="https://polygonscan.com/address/${SHT_CONTRACT_ADDRESS}" target="_blank">
+                    <div class="token-container">
+                        <img src="assets/SHT.png" alt="SHT Token" class="sht-glow">
+                        <img src="assets/Polygon.png" alt="Polygon Logo" class="polygon-icon">
+                    </div>
+                </a>
+                <div class="rewards-text">
+                    <strong>Claimable Rewards:</strong><br>
+                    <span id="claim-amount">Loading...</span> SHT
+                </div>
+            </div>
+
+            <br>
+            <button id="claim-rewards-btn">Claim Rewards</button>
+
+            <br><br>
+            <!-- Top 10 Claimers List -->
+            <div id="top-claimers" class="sponsor-list">
+                <h3>🏆 Top Claimers</h3>
+                <p>Loading...</p>
+            </div>
         </div>
     </div>
 

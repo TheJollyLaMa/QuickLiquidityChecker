@@ -28,7 +28,7 @@ contract LP_Lock_Stake_and_Farm is Ownable {
     uint256 public totalSHTFunded;
     uint256 public totalRewardsClaimed;
 
-    uint256 public rewardPeriod = 30 days;
+    uint256 public rewardPeriod = 30;
     uint256 public minRequiredLiquidity = 100 * 10**18;
 
     struct TickRange {
@@ -169,7 +169,10 @@ contract LP_Lock_Stake_and_Farm is Ownable {
     function claimRewards() external {
         require(isWhitelisted(msg.sender), "Not eligible for rewards");
 
-        uint256 reward = calculateDailyReward(msg.sender) * ((block.timestamp - lastClaimedTime[msg.sender]) / 1 days);
+        uint256 dailyReward = calculateDailyReward(msg.sender);
+        uint256 daysElapsed = (block.timestamp - lastClaimedTime[msg.sender]) / 86400; // Convert seconds to days
+        uint256 reward = dailyReward * daysElapsed;
+        
         require(reward > 0, "No rewards available");
 
         lastClaimedTime[msg.sender] = block.timestamp;
@@ -181,7 +184,7 @@ contract LP_Lock_Stake_and_Farm is Ownable {
     }
 
     function updateRewardPeriod(uint256 _newPeriod) external onlyOwner {
-        require(_newPeriod >= 0 days && _newPeriod <= 365 days, "Invalid period");
+        require(_newPeriod >= 0 && _newPeriod <= 365, "Invalid period");
         rewardPeriod = _newPeriod;
         emit LockDurationUpdated(_newPeriod);
     }

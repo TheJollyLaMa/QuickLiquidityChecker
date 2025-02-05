@@ -127,3 +127,83 @@ async function updateSponsorList() {
     }
 }
 
+document.getElementById("sponsee-btn").addEventListener("click", openSponseeModal);
+document.getElementById("claim-rewards-btn").addEventListener("click", claimRewards);
+
+async function openSponseeModal() {
+    const userAddress = await signer.getAddress();
+    document.getElementById("connected-wallet").innerText = userAddress;
+
+    // Check if user's NFTs are locked
+    const isLocked = await checkLockedNFTs(userAddress);
+    document.getElementById("nft-status").innerText = isLocked ? "✅ Your LP NFTs are LOCKED" : "❌ No Locked NFTs";
+
+    if (isLocked) {
+        const rewardAmount = await getClaimableRewards(userAddress);
+        document.getElementById("claim-amount").innerText = rewardAmount;
+    } else {
+        document.getElementById("claim-amount").innerText = "NA";
+    }
+
+    document.getElementById("sponsee-modal").style.display = "block";
+}
+
+async function checkLockedNFTs(userAddress) {
+    const student = await LPLockContract.students(userAddress);
+    return student.broadTokenId > 0 && student.targetedTokenId > 0;
+}
+
+async function getClaimableRewards(userAddress) {
+    const dailyReward = await LPLockContract.calculateDailyReward(userAddress);
+    const lastClaim = await LPLockContract.lastClaimedTime(userAddress);
+    const daysElapsed = Math.floor((Date.now() / 1000 - lastClaim) / 86400);
+    return ethers.utils.formatUnits(dailyReward.mul(daysElapsed), 18);
+}
+
+async function claimRewards() {
+    try {
+        const tx = await LPLockContract.claimRewards();
+        await tx.wait();
+        alert("Rewards Claimed Successfully!");
+        openSponseeModal(); // Refresh modal
+    } catch (error) {
+        console.error("❌ Error claiming rewards:", error);
+        alert("Error claiming rewards!");
+    }
+}
+
+async function updateSponseeList() {
+    try {
+        const events = await LPLockContract.queryFilter("LPDeposited", 0, "latest");
+
+        let sponsees = {};
+        
+        // Aggregate deposits by wallet
+        events.forEach(event => {
+            const { student, broadTokenId, targetedTokenId } = event.args;
+            if (!sponsees[student]) {
+                sponsees[student] = [];
+            }
+            sponsees[student].push({ broadTokenId, targetedTokenId });
+        });
+
+        // Generate sponsee list HTML
+        const sponseeListElement = document.getElementById("sponsee-list");
+        sponseeListElement.innerHTML = "<h3>👨‍🎓 Sponsees</h3>";
+
+        for (const [wallet, nfts] of Object.entries(sponsees)) {
+            const formattedWallet = `${wallet.slice(0, 6)}...${wallet.slice(-4)}`;
+            sponseeListElement.innerHTML += `<p>${formattedWallet}</p>`;
+            nfts.forEach(nft => {
+                sponseeListElement.innerHTML += `<p>Broad NFT: ${nft.broadTokenId}, Targeted NFT: ${nft.targetedTokenId}</p>`;
+            });
+        }
+
+    } catch (error) {
+        console.error("❌ Error fetching sponsee list:", error);
+    }
+} 
+
+function closeSponseeModal() {
+    document.getElementById("sponsee-modal").style.display = "none";
+}

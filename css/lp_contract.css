@@ -12,7 +12,7 @@
     padding: 4px;
     border-radius: 50%;
     background: transparent;
-    border: 2px solid #00ffea;
+    border: 2px solid #ffea00;
     cursor: pointer;
     z-index: 1000;
 }
@@ -216,4 +216,37 @@ textarea {
     font-size: 18px;
     color: #00ffea;
     text-shadow: 0 0 5px #68fd8b, 0 0 10px #68d3fd, 0 0 15px #fdf868;
+}
+/* Sponsee Button */
+.sponsee-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 100px;
+    height: 100px;
+    color: #9ef8f0;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 16px;
+    padding: 4px;
+    border-radius: 50%;
+    background: transparent;
+    border: 2px solid #ffea00;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+.sponsee-button img {
+    width: 45px;
+    height: auto;
+    filter: drop-shadow(0px 0px 10px rgba(0, 255, 234, 0.8));
+    transition: transform 0.3s ease-in-out;
+}
+
+.sponsee-button:hover {
+    color: #007bff;
+    background-color: rgba(255, 255, 255, 0.623);
+    border: 2px solid #00ff08;
+    transform: scale(1.1);
+    filter: drop-shadow(0px 0px 15px rgba(0, 255, 234, 1));
+    box-shadow: 0px 0px 15px rgba(251, 255, 0, 0.455), 0px 0px 20px rgba(138, 255, 245, 0.632);
 }
