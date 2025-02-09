@@ -2,37 +2,60 @@
 let LPLockContract;
 async function initializeLPLockContract() {
     try {
+        if (!signer) {
+            console.error("❌ Signer is undefined. Waiting for initialization...");
+            await initializeProvider();
+        }
+
+        if (!signer) {
+            throw new Error("❌ Failed to initialize signer.");
+        }
+
         LPLockContract = new ethers.Contract(LPLOCK_CONTRACT_ADDRESS, LPLOCK_ABI, signer);
+        console.log("✅ LPLockContract initialized successfully");
     } catch (error) {
         console.error("❌ Error initializing LPLock contract:", error);
     }
-} 
+}
 
 async function depositRewards(amount, note) {
     try {
-        // Convert human-readable amount to contract format (18 decimals)
-        const formattedAmount = ethers.utils.parseUnits(amount, 18);
-        
-        // Get approval
-        const tokenContract = new ethers.Contract(SHT_CONTRACT_ADDRESS, ERC20_ABI, signer);
-        const approvalTx = await tokenContract.approve(LPLOCK_CONTRACT_ADDRESS, formattedAmount);
-        await approvalTx.wait();
+        if (!amount || amount <= 0) {
+            alert("❌ Enter a valid amount.");
+            return;
+        }
 
-        // Deposit rewards
+        const formattedAmount = ethers.utils.parseUnits(amount, 18);
+        const tokenContract = new ethers.Contract(SHT_CONTRACT_ADDRESS, ERC20_ABI, signer);
+        
+        // ✅ Check if approval is needed
+        const allowance = await tokenContract.allowance(await signer.getAddress(), LPLOCK_CONTRACT_ADDRESS);
+        if (allowance.lt(formattedAmount)) {
+            const approvalTx = await tokenContract.approve(LPLOCK_CONTRACT_ADDRESS, formattedAmount);
+            await approvalTx.wait();
+        }
+
         const tx = await LPLockContract.depositRewards(formattedAmount, note);
         await tx.wait();
 
         alert(`🧞‍♂️Successfully deposited ${amount} SHT!`);
-        updateSponsorList(); // Refresh sponsor list after deposit
+        updateSponsorList();
     } catch (error) {
         console.error("❌ ⚸ Error depositing rewards:", error);
     }
 }
 
 
-
 async function depositLP(broadTokenId, targetedTokenId, lockDays) {
     try {
+        const userAddress = await signer.getAddress();
+        const studentInfo = await LPLockContract.students(userAddress);
+
+        if (studentInfo.broadTokenId > 0 || studentInfo.targetedTokenId > 0) {
+            alert("❌ You already have LP locked!");
+            return;
+        }
+
         const tx = await LPLockContract.depositLP(broadTokenId, targetedTokenId, lockDays);
         await tx.wait();
         alert("✅ LP successfully deposited!");
@@ -41,8 +64,18 @@ async function depositLP(broadTokenId, targetedTokenId, lockDays) {
     }
 }
 
+
 async function withdrawLP() {
     try {
+        const userAddress = await signer.getAddress();
+        const studentInfo = await LPLockContract.students(userAddress);
+        const currentTime = Math.floor(Date.now() / 1000);
+
+        if (currentTime < studentInfo.unlockTime) {
+            alert("❌ Your LP is still locked!");
+            return;
+        }
+
         const tx = await LPLockContract.withdrawLP();
         await tx.wait();
         alert("✅ LP successfully withdrawn!");
@@ -150,25 +183,36 @@ async function openSponseeModal() {
 
 async function checkLockedNFTs(userAddress) {
     const student = await LPLockContract.students(userAddress);
-    return student.broadTokenId > 0 && student.targetedTokenId > 0;
+    const currentTime = Math.floor(Date.now() / 1000);
+
+    return student.broadTokenId > 0 && student.targetedTokenId > 0 && currentTime < student.unlockTime;
 }
 
 async function getClaimableRewards(userAddress) {
     const dailyReward = await LPLockContract.calculateDailyReward(userAddress);
     const lastClaim = await LPLockContract.lastClaimedTime(userAddress);
-    const daysElapsed = Math.floor((Date.now() / 1000 - lastClaim) / 86400);
+    
+    const currentTime = Math.floor(Date.now() / 1000);
+    const daysElapsed = lastClaim > 0 ? Math.floor((currentTime - lastClaim) / 86400) : 0;
+
     return ethers.utils.formatUnits(dailyReward.mul(daysElapsed), 18);
 }
 
 async function claimRewards() {
     try {
+        const userAddress = await signer.getAddress();
+        const claimableRewards = await getClaimableRewards(userAddress);
+
+        if (claimableRewards <= 0) {
+            alert("❌ No rewards available!");
+            return;
+        }
+
         const tx = await LPLockContract.claimRewards();
         await tx.wait();
-        alert("Rewards Claimed Successfully!");
-        openSponseeModal(); // Refresh modal
+        alert("✅ Rewards Claimed Successfully!");
     } catch (error) {
         console.error("❌ Error claiming rewards:", error);
-        alert("Error claiming rewards!");
     }
 }
 
@@ -206,4 +250,91 @@ async function updateSponseeList() {
 
 function closeSponseeModal() {
     document.getElementById("sponsee-modal").style.display = "none";
+}
+
+
+
+async function checkIfOwner() {
+    try {
+        if (!LPLockContract) {
+            console.error("❌ LPLockContract is not initialized.");
+            return;
+        }
+
+        const owner = await LPLockContract.owner();
+        const userAddress = await signer.getAddress();
+
+        if (owner.toLowerCase() === userAddress.toLowerCase()) {
+            document.getElementById("admin-panel-btn").style.display = "block";
+        }
+    } catch (error) {
+        console.error("❌ Error checking contract owner:", error);
+    }
+}
+
+// Open Modal
+document.getElementById("admin-panel-btn").addEventListener("click", () => {
+    document.getElementById("admin-modal").style.display = "block";
+    loadContractFunctions();
+});
+
+// Close Modal
+function closeAdminModal() {
+    document.getElementById("admin-modal").style.display = "none";
+}
+
+// Load Contract Functions
+async function loadContractFunctions() {
+    const container = document.getElementById("contract-functions");
+    container.innerHTML = "";
+
+    LPLOCK_ABI.forEach((func) => {
+        if (func.type !== "function") return;
+
+        const functionContainer = document.createElement("div");
+        functionContainer.classList.add("function-container");
+
+        const button = document.createElement("button");
+        button.innerText = func.name;
+
+        const inputs = [];
+
+        func.inputs.forEach((input) => {
+            const inputField = document.createElement("input");
+            inputField.placeholder = `${input.name} (${input.type})`;
+            inputField.dataset.type = input.type;
+            functionContainer.appendChild(inputField);
+            inputs.push(inputField);
+        });
+
+        button.addEventListener("click", async () => {
+            const args = inputs.map((input) => {
+                if (input.dataset.type.includes("uint")) {
+                    return ethers.BigNumber.from(input.value);
+                }
+                return input.value;
+            });
+        
+            try {
+                const result = await LPLockContract[func.name](...args); 
+                
+                if (func.stateMutability === "view" || func.stateMutability === "pure") {
+                    // ✅ Display the result if it's a view function
+                    alert(`✅ ${func.name} result: ${result}`);
+                    console.log(`✅ ${func.name} result:`, result);
+                } else {
+                    // ✅ If it's a transaction, wait for confirmation
+                    const tx = result;
+                    await tx.wait();
+                    alert(`✅ ${func.name} executed successfully!`);
+                }
+            } catch (error) {
+                console.error(`❌ Error executing ${func.name}:`, error);
+                alert(`❌ Error executing ${func.name}`);
+            }
+        });
+
+        functionContainer.appendChild(button);
+        container.appendChild(functionContainer);
+    });
 }

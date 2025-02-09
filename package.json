@@ -1,6 +1,8 @@
 {
   "dependencies": {
+    "@aave/core-v3": "^1.19.3",
     "@openzeppelin/contracts": "^5.2.0",
+    "@uniswap/v3-periphery": "^1.4.4",
     "ethers": "^6.13.5"
   }
 }

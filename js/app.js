@@ -2,7 +2,7 @@ let provider, signer;
 
 const ALGEBRA_POSITION_MANAGER = "0x8eF88E4c7CfbbaC1C163f7eddd4B578792201de6";
 const POOL_CONTRACT_ADDRESS = "0xf1a9a6a83077b73f662211b3fdecfa0cf13ceec7";
-const LPLOCK_CONTRACT_ADDRESS = "0x04A0d39e9E60981702B0F36d10F673943982369B"; //first deployed 0435 05Feb2025 on polygon
+const LPLOCK_CONTRACT_ADDRESS = "0x9769e8A1eD9731454C1C7b1E6dD0c327aD77545b"; // third deployment on polygon // second deployment 1531 05Feb2025 on Polygon: 0x5be0F70e61B6842c126c17250F9f454103B72710 //first deployed 0435 05Feb2025 on polygon: 0x04A0d39e9E60981702B0F36d10F673943982369B
 const SHT_CONTRACT_ADDRESS = "0x81cCeF6414D4CDbed9FD6Ea98c2D00105800cd78";
 
 let ALGEBRA_ABI = [];
@@ -27,7 +27,7 @@ async function loadABIs() {
         ALGEBRA_ABI = await (await fetch("abis/abi.json")).json();
         FACTORY_ABI = await (await fetch("abis/factory_abi.json")).json();
         POOL_ABI = await (await fetch("abis/pool_abi.json")).json();
-        LPLOCK_ABI = await (await fetch("abis/LPLock_Stake_and_Farm_v0.1_abi.json")).json();
+        LPLOCK_ABI = await (await fetch("abis/LPLock_Stake_and_Farm_v0.3_abi.json")).json();
         ERC20_ABI = await (await fetch("abis/erc20_abi.json")).json();
 
     } catch (error) {
@@ -102,7 +102,6 @@ async function loadLiquidityNFTs() {
     }
 }
 
-// ✅ Display NFT at Correct Position in the Bowl
 // ✅ Display NFT at Correct Position in the Bowl
 function displayNFT(id, imageUrl, className) {
     const imgElement = document.createElement("img");
@@ -185,13 +184,26 @@ async function getNFTData(tokenId) {
     }
 }
 
+async function checkLiquidity() {
+    console.log("Checking liquidity...");
+
+    // Assuming you have an array of token positions
+    for (let token of tokenPositions) {
+        const tokenData = await getTokenInfo(token.id); // Fetch existing token info function
+
+
+    }
+}
+
 // ✅ Wait for Page Load
 document.addEventListener("DOMContentLoaded", async function () {
     await initializeProvider();
     await loadABIs();
 
     await initializeLPLockContract();
-    
+
+    await checkIfOwner();
+
     await checkTokens();
 
     // ✅ Load NFTs

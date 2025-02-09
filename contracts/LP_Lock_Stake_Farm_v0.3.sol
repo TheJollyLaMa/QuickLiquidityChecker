@@ -55,6 +55,8 @@ contract LP_Lock_Stake_and_Farm is Ownable {
 
     mapping(address => Student) public students;
     mapping(address => uint256) public lastClaimedTime;
+    mapping(address => uint256) public totalRewardsClaimedBy; // Track total claimed rewards per user
+
     mapping(uint256 => bool) public whitelistedNFTs;
     address[] public whitelistedAddresses;
     Sponsor[] public sponsors;
@@ -65,6 +67,7 @@ contract LP_Lock_Stake_and_Farm is Ownable {
     event RewardsFunded(address indexed sponsor, uint256 amount, string note);
     event TickRangeUpdated(string rangeType, int24 newLowerTick, int24 newUpperTick);
     event LockDurationUpdated(uint256 newDuration);
+    event RewardsWithdrawn(address indexed owner, uint256 amount);
 
     constructor(address _positionManager, address _rewardToken) Ownable(msg.sender) {
         positionManager = IUniswapV3Positions(_positionManager);
@@ -166,21 +169,31 @@ contract LP_Lock_Stake_and_Farm is Ownable {
         return 100;
     }
 
+    function calculateTotalReward(address _student) public view returns (uint256) {
+        if (!isWhitelisted(_student) || totalLockedLP == 0) return 0;
+
+        uint256 dailyReward = calculateDailyReward(_student);
+        uint256 daysElapsed = (block.timestamp - lastClaimedTime[_student]) / 86400; // Convert seconds to days
+
+        return dailyReward * daysElapsed;
+    }
+
     function claimRewards() external {
         require(isWhitelisted(msg.sender), "Not eligible for rewards");
 
-        uint256 dailyReward = calculateDailyReward(msg.sender);
-        uint256 daysElapsed = (block.timestamp - lastClaimedTime[msg.sender]) / 86400; // Convert seconds to days
-        uint256 reward = dailyReward * daysElapsed;
+        uint256 totalReward = calculateTotalReward(msg.sender);
+        uint256 alreadyClaimed = totalRewardsClaimedBy[msg.sender];
+
+        uint256 claimableReward = totalReward > alreadyClaimed ? totalReward - alreadyClaimed : 0;
         
-        require(reward > 0, "No rewards available");
+        require(claimableReward > 0, "No new rewards available");
 
         lastClaimedTime[msg.sender] = block.timestamp;
-        totalSHTFunded -= reward;
-        totalRewardsClaimed += reward;
+        totalSHTFunded -= claimableReward;
+        totalRewardsClaimedBy[msg.sender] += claimableReward; // Update total claimed
 
-        require(rewardToken.transfer(msg.sender, reward), "Reward transfer failed");
-        emit RewardsClaimed(msg.sender, reward);
+        require(rewardToken.transfer(msg.sender, claimableReward), "Reward transfer failed");
+        emit RewardsClaimed(msg.sender, claimableReward);
     }
 
     function updateRewardPeriod(uint256 _newPeriod) external onlyOwner {
@@ -205,4 +218,14 @@ contract LP_Lock_Stake_and_Farm is Ownable {
         return sponsors;
     }
     
+    function withdrawUnclaimedRewards(uint256 amount) external onlyOwner {
+        require(amount > 0, "Invalid amount");
+        require(rewardToken.balanceOf(address(this)) >= amount, "Not enough SHT in contract");
+        
+        totalSHTFunded -= amount; // Reduce the available rewards pool
+        require(rewardToken.transfer(msg.sender, amount), "Transfer failed");
+
+        emit RewardsWithdrawn(msg.sender, amount);
+    }
+
 }

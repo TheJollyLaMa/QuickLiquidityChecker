@@ -157,15 +157,35 @@
         <hr>
         <section class="liquidity-checker">
             <h2>Liquidity Token Checker</h2>
-            <p>Enter your Liquidity Position NFT ID to verify eligibility for class access.</p>
+            <p>Enter your Liquidity Position NFT ID to see its stats.</p>
             <input type="text" id="token-id" placeholder="Enter Liquidity Token ID">
             <button type="button" onclick="checkLiquidity()">Check</button>
+            
+            <div id="liquidity-info" class="liquidity-results">
+                <h3>Token Details</h3>
+                <p><strong>Owner:</strong> <span id="token-owner">-</span></p>
+                <p><strong>Token Pair:</strong> <span id="token-pair">-</span></p>
+                <p><strong>Liquidity:</strong> <span id="token-liquidity">-</span></p>
+                <p><strong>Tick Range:</strong> <span id="token-tick-range">-</span></p>
+                <p><strong>Unclaimed Fees:</strong> <span id="token-fees">-</span></p>
+            </div>
         </section>
         <br><br>
         <hr>
         <br><br>
     </main>
-    
+    <!-- Admin Panel Button -->
+    <button id="admin-panel-btn" class="admin-button" style="display: none;">~ ☔️ ~ <br> ⚸ 📜🧞‍♂️ </button>
+
+    <!-- Admin Panel Modal -->
+    <div id="admin-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeAdminModal()">&times;</span>
+            <h2>Contract Functions</h2>
+            <div id="contract-functions"></div>
+        </div>
+    </div>
+
     <footer>
         <div class="icon-container">
             <img src="assets/USDGLO.png" alt="USDGLO Token" class="icon small">
