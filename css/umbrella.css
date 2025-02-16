@@ -1,0 +1,52 @@
+/* umbrella.css */
+
+.lpToken {
+    display: inline-block;
+    padding: 10px;
+    margin: 5px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.dimmed {
+    opacity: 0.5;
+    cursor: default;
+    pointer-events: none;
+    background-color: #ddd;
+}
+
+.hoverable {
+    background-color: #4caf50;
+    color: white;
+    box-shadow: 0px 0px 10px rgba(76, 175, 80, 0.8);
+}
+
+.hoverable:hover {
+    transform: scale(1.1);
+    box-shadow: 0px 0px 15px rgba(76, 175, 80, 1);
+}
+
+#lockModal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+#lockModal h3 {
+    margin-top: 0;
+}
+
+#lockDays {
+    width: 50px;
+    margin-bottom: 10px;
+}

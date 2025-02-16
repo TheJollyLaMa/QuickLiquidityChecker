@@ -1,11 +1,9 @@
 // ✅ Fetch Token Information with Liquidity Calculation
 async function getTokenInfo(tokenId) {
     try {
-        // ✅ Initialize Position Manager Contract
         const positionManager = new ethers.Contract(ALGEBRA_POSITION_MANAGER, ALGEBRA_ABI, provider);
         const poolContract = new ethers.Contract(POOL_CONTRACT_ADDRESS, POOL_ABI, provider);
 
-        // ✅ Get Position Details
         const position = await positionManager.positions(tokenId);
         const globalState = await poolContract.globalState();
         const currentTick = globalState.tick;
@@ -13,21 +11,18 @@ async function getTokenInfo(tokenId) {
         console.log(`✅ Current Tick: ${currentTick}`);
         const price = Math.pow(1.0001, currentTick);
 
-        // ✅ Static Token Pair
         const token0 = "USDGLO";
         const token1 = "OMMM";
 
-        // ✅ Extract Tick Range and Liquidity Info
         const tickLower = position.tickLower.toString();
         const tickUpper = position.tickUpper.toString();
         const liquidity = BigInt(position.liquidity.toString());
 
         console.log(`✅ Token ${tokenId} Data:`, { tickLower, tickUpper, liquidity });
 
-        // ✅ Convert Liquidity to Token Amounts
         const { amount0, amount1 } = calculateTokenAmounts(liquidity, tickLower, tickUpper, currentTick);
 
-        return { token0, token1, tickLower, tickUpper, liquidity, amount0, amount1 };
+        return { tokenId, token0, token1, tickLower, tickUpper, liquidity, amount0, amount1 };
 
     } catch (error) {
         console.error(`❌ Error fetching token ${tokenId} data:`, error);
@@ -173,66 +168,78 @@ function positionOuterBalanceTokens(gloLiquidityRatio, ommmLiquidityRatio) {
 async function checkTokens() {
     await initializeProvider();
 
-    // ✅ Fetch Data for Our Two Reference Tokens
-    const broadTokenData = await getTokenInfo(150843);
-    const targetedTokenData = await getTokenInfo(150879);
+    const positionManager = new ethers.Contract(ALGEBRA_POSITION_MANAGER, ALGEBRA_ABI, provider);
+    const signerAddress = await signer.getAddress();
 
-    // ✅ Update UI Based on Validation
-    updateLiquidityDetails(broadTokenData, targetedTokenData);
+    // ✅ Fetch all owned LP NFTs
+    const balance = await positionManager.balanceOf(signerAddress);
+    const tokenIds = [];
+
+    for (let i = 0; i < balance; i++) {
+        const tokenId = await positionManager.tokenOfOwnerByIndex(signerAddress, i);
+        tokenIds.push(tokenId.toString());
+    }
+
+    console.log("✅ Found LP NFTs:", tokenIds);
+
+    // ✅ Ensure the result is always an array
+    let tokenDataArray = await Promise.all(tokenIds.map(getTokenInfo));
+
+    // ✅ Filter out null results
+    tokenDataArray = tokenDataArray.filter(data => data !== null);
+
+    // ✅ Ensure it's an array before passing to updateLiquidityDetails
+    if (!Array.isArray(tokenDataArray)) {
+        console.error("❌ Expected tokenDataArray to be an array, received:", tokenDataArray);
+        tokenDataArray = [];
+    }
+
+    updateLiquidityDetails(tokenDataArray);
 }
 
 // ✅ Function to Update Liquidity Token Details in UI
-function updateLiquidityDetails(broadToken, targetedToken) {
-    // Find the HTML elements
+function updateLiquidityDetails(tokenDataArray) {
+    // ✅ Convert to array if needed
+    if (!Array.isArray(tokenDataArray)) {
+        console.warn("⚠️ Converting tokenDataArray to an array:", tokenDataArray);
+        tokenDataArray = [tokenDataArray];  // Wrap it as an array
+    }
+
     const broadInfoElement = document.getElementById("broad-range-info");
     const targetedInfoElement = document.getElementById("targeted-range-info");
-    const outerLpValues = document.getElementById("outerLpValues");
-    const innerLpValues = document.getElementById("innerLpValues");
 
-    if (!broadToken || !targetedToken) {
-        broadInfoElement.innerHTML = "❌ Error loading token data.";
-        targetedInfoElement.innerHTML = "❌ Error loading token data.";
+    if (!tokenDataArray.length) {
+        broadInfoElement.innerHTML = "❌ No LP tokens found.";
+        targetedInfoElement.innerHTML = "❌ No LP tokens found.";
         return;
     }
 
-    // Format the tick range
-    const broadTickRange = broadToken.tickUpper === "Infinity"
-        ? "0 → ♾️"
-        : `${broadToken.tickLower} → ${broadToken.tickUpper}`;
+    let broadHTML = "";
+    let targetedHTML = "";
 
-    const targetedTickRange = `${targetedToken.tickLower} → ${targetedToken.tickUpper}`;
+    tokenDataArray.forEach((token, index) => {
+        if (!token) return;
 
-    // ✅ Update Top Liquidity Details Section
-    broadInfoElement.innerHTML = `
-        ✅ Token ID: 150843 <br>
-        🔹 **Pair**: USDGLO / OMMM <br>
-        📉 **Tick Range**: ${broadTickRange} <br>
-        💰 **Liquidity**: ${broadToken.amount0} OMMM / ${broadToken.amount1} USDGLO <br>
-    `;
+        const tickRange = token.tickUpper === "Infinity" ? "0 → ♾️" : `${token.tickLower} → ${token.tickUpper}`;
 
-    targetedInfoElement.innerHTML = `
-        ✅ Token ID: 150879 <br>
-        🔹 **Pair**: USDGLO / OMMM <br>
-        📉 **Tick Range**: ${targetedTickRange} <br>
-        💰 **Liquidity**: ${targetedToken.amount0} OMMM / ${targetedToken.amount1} USDGLO <br>
-    `;
+        const tokenHTML = `
+            ✅ Token ID: ${token.tokenId} <br>
+            🔹 **Pair**: ${token.token0} / ${token.token1} <br>
+            📉 **Tick Range**: ${tickRange} <br>
+            💰 **Liquidity**: ${token.amount0} ${token.token0} / ${token.amount1} ${token.token1} <br>
+        `;
 
+        if (index < 6) {
+            broadHTML += tokenHTML + "<br>";
+        } else {
+            targetedHTML += tokenHTML + "<br>";
+        }
+    });
 
-    // ✅ Update Liquidity Values in Visualizer
-    outerLpValues.innerHTML = `
-        <div class="outer-liquidity usdglo">${broadToken.amount1}</div>
-        <div class="outer-liquidity ommm">${broadToken.amount0}</div>
-    `;
+    broadInfoElement.innerHTML = broadHTML || "❌ No broad-range LP tokens.";
+    targetedInfoElement.innerHTML = targetedHTML || "❌ No targeted-range LP tokens.";
 
-    innerLpValues.innerHTML = `
-        <div class="inner-liquidity usdglo">${targetedToken.amount1}</div>
-        <div class="inner-liquidity ommm">${targetedToken.amount0}</div>
-    `;
-
-    positionOuterBalanceTokens(parseFloat(broadToken.amount1) / 50, parseFloat(broadToken.amount0) / 600);
-
-    console.log("✅ UI Updated with Liquidity Values");
-
+    console.log("✅ UI Updated with Dynamic LP Token Data");
 }
 
 // ✅ Check if an NFT Meets Project Standards

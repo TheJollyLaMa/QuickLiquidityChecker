@@ -18,6 +18,25 @@ async function initializeLPLockContract() {
     }
 }
 
+// initialize position manager contract
+async function initializePositionManagerContract() {
+    try {
+        if (!signer) {
+            console.error("❌ Signer is undefined. Waiting for initialization...");
+            await initializeProvider();
+        }
+        if (!signer) {
+            throw new Error("❌ Failed to initialize signer.");
+        }
+        const positionManagerContract = new ethers.Contract(ALGEBRA_POSITION_MANAGER, ALGEBRA_ABI, signer);
+        console.log("✅ PositionManagerContract initialized successfully");
+        return positionManagerContract;
+    } catch (error) {
+        console.error("❌ Error initializing PositionManager contract:", error);
+    }
+}
+
+
 async function depositRewards(amount, note) {
     try {
         if (!amount || amount <= 0) {
@@ -316,20 +335,41 @@ async function loadContractFunctions() {
             });
         
             try {
-                const result = await LPLockContract[func.name](...args); 
-                
-                if (func.stateMutability === "view" || func.stateMutability === "pure") {
-                    // ✅ Display the result if it's a view function
-                    alert(`✅ ${func.name} result: ${result}`);
-                    console.log(`✅ ${func.name} result:`, result);
-                } else {
-                    // ✅ If it's a transaction, wait for confirmation
-                    const tx = result;
-                    await tx.wait();
-                    alert(`✅ ${func.name} executed successfully!`);
+
+                // ✅ Call the depositLP function
+                if (func.name === "depositLP") {
+                    const [broadTokenId, targetedTokenId, lockDays] = args;
+                    // call approval function for LP token
+                    initializePositionManagerContract();
+                    const positionManagerContract = await initializePositionManagerContract();
+                    await positionManagerContract.setApprovalForAll(LPLOCK_CONTRACT_ADDRESS, true);
+                    const res = await LPLockContract.depositLP(broadTokenId, targetedTokenId, lockDays, { gasLimit: ethers.utils.parseUnits("1000000", "wei") });
+                    alert("✅ LP successfully deposited!");
+                    console.log("✅ LP successfully deposited!", res);
+                    return;
+                }else {
+
+                    const result = await LPLockContract[func.name](...args, { gasLimit: 1000000 }); 
+                    
+                    if (func.stateMutability === "view" || func.stateMutability === "pure") {
+                        // ✅ Display the result if it's a view function
+                        alert(`✅ ${func.name} result: ${result}`);
+                        console.log(`✅ ${func.name} result:`, result);
+                    } else {
+                        // ✅ If it's a transaction, wait for confirmation
+                        try{
+                            const tx = result;
+                            await tx.wait();
+                            alert(`✅ ${func.name} executed successfully!`);
+                        }catch (error){
+                            console.error(`❌ Error executing POST ${func.name}:`, error.reason || error);
+                            alert(`❌ Error executing ${func.name}`);
+                        }
+                    }
                 }
+
             } catch (error) {
-                console.error(`❌ Error executing ${func.name}:`, error);
+                console.error(`❌ Error executing GET ${func.name}:`, error);
                 alert(`❌ Error executing ${func.name}`);
             }
         });
