@@ -202,6 +202,9 @@ async function openSponseeModal() {
         
         const targetedNFT = await getTokenInfo(targetedTokenId);
         const nftContainer = document.getElementById("locked-nfts");
+        nftContainer.classList.add("locked");
+        nftContainer.classList.remove("not-locked");
+
         nftContainer.innerHTML = `
             <div class="nft-card">
                 <h3>Broad Range</h3>
@@ -213,9 +216,39 @@ async function openSponseeModal() {
                 <img src="${targetedNFT.jsonMetadata.image}" alt="Targeted NFT" class="sponsee-nft-image">
                 <p>${targetedTokenId}</p>
             </div>
+            <br>
+            <p>Unlock Time: ${new Date(student.unlockTime * 1000).toLocaleString()}</p>
+            <button id="withdraw-btn" onclick="withdrawLP()">Withdraw LP</button>
         `;
     } else {
-        document.getElementById("claim-amount").innerText = "NA";
+        const rewardAmount = await getClaimableRewards(userAddress);
+        document.getElementById("claim-amount").innerText = rewardAmount;
+        //  show nft's
+        const student = await LPLockContract.students(userAddress);
+        const broadTokenId = student.broadTokenId;
+        const targetedTokenId = student.targetedTokenId;
+        const broadNFT = await getTokenInfo(broadTokenId);
+        console.log("Broad NFT:", broadNFT);
+        
+        const targetedNFT = await getTokenInfo(targetedTokenId);
+        const nftContainer = document.getElementById("locked-nfts");
+        nftContainer.classList.add("not-locked");
+        nftContainer.classList.remove("locked");
+        nftContainer.innerHTML = `
+            <div class="nft-card">
+                <h3>Broad Range</h3>
+                <img src="${broadNFT.jsonMetadata.image}" alt="Broad NFT" class="sponsee-nft-image">
+                <p>${broadTokenId}</p>
+            </div>
+            <div class="nft-card">
+                <h3>Targeted Range</h3>
+                <img src="${targetedNFT.jsonMetadata.image}" alt="Targeted NFT" class="sponsee-nft-image">
+                <p>${targetedTokenId}</p>
+            </div>
+            <br>
+            <p>Unlock Time: ${new Date(student.unlockTime * 1000).toLocaleString()}</p>
+            <button id="withdraw-btn" onclick="withdrawLP()">Withdraw LP</button>
+        `;
     }
 
     document.getElementById("sponsee-modal").style.display = "block";
@@ -229,13 +262,13 @@ async function checkLockedNFTs(userAddress) {
 }
 
 async function getClaimableRewards(userAddress) {
-    const dailyReward = await LPLockContract.calculateDailyReward(userAddress);
-    const lastClaim = await LPLockContract.lastClaimedTime(userAddress);
+    // const dailyReward = await LPLockContract.calculateDailyReward(userAddress);
+    // const lastClaim = await LPLockContract.lastClaimedTime(userAddress);
     
-    const currentTime = Math.floor(Date.now() / 1000);
-    const daysElapsed = lastClaim > 0 ? Math.floor((currentTime - lastClaim) / 86400) : 0;
-
-    return ethers.utils.formatUnits(dailyReward.mul(daysElapsed), 18);
+    // const currentTime = Math.floor(Date.now() / 1000);
+    // const daysElapsed = lastClaim > 0 ? Math.floor((currentTime - lastClaim) / 86400) : 0;
+    const rewardsWaiting = await LPLockContract.calculateTotalReward(userAddress);
+    return ethers.utils.formatUnits(rewardsWaiting, 18); //ethers.utils.formatUnits(dailyReward.mul(daysElapsed), 18);
 }
 
 async function claimRewards() {
