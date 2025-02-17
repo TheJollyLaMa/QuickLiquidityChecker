@@ -122,3 +122,33 @@ footer p {
     font-size: 14px;
     color: #eaff00;
 }
+
+
+.locked-nfts {
+    display: flex;
+    margin: 20px;
+    gap: 20px; /* Adds space between cards */
+    flex-wrap: wrap; /* Ensures they wrap on smaller screens */
+    justify-content: center; /* Center align */
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 255, 234, 0.757), 0px 0px 20px rgba(255, 242, 0, 0.757);
+}
+
+.sponsee-nft-image {
+    text-align: center;
+    width: 80px;
+    height: 80px; 
+}
+
+#claim-rewards-btn {
+    background: #ffff00;
+    color: rgb(0, 186, 219);
+    border: none;
+    padding: 10px 15px;
+    margin: 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+    box-shadow: 0px 0px 10px rgba(0, 255, 242, 0.757), 0px 0px 20px rgb(255, 255, 255);
+}

@@ -22,7 +22,11 @@ async function getTokenInfo(tokenId) {
 
         const { amount0, amount1 } = calculateTokenAmounts(liquidity, tickLower, tickUpper, currentTick);
 
-        return { tokenId, token0, token1, tickLower, tickUpper, liquidity, amount0, amount1 };
+        const image = await positionManager.tokenURI(tokenId);
+        const base64Data = image.split(",")[1]; // Extract base64 part
+        const jsonMetadata = JSON.parse(atob(base64Data)); // Decode JSON
+        console.log(`✅ Token ${tokenId} Metadata:`, jsonMetadata);
+        return { tokenId, token0, token1, tickLower, tickUpper, liquidity, amount0, amount1, jsonMetadata };
 
     } catch (error) {
         console.error(`❌ Error fetching token ${tokenId} data:`, error);

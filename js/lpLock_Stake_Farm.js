@@ -193,6 +193,27 @@ async function openSponseeModal() {
     if (isLocked) {
         const rewardAmount = await getClaimableRewards(userAddress);
         document.getElementById("claim-amount").innerText = rewardAmount;
+        //  show nft's
+        const student = await LPLockContract.students(userAddress);
+        const broadTokenId = student.broadTokenId;
+        const targetedTokenId = student.targetedTokenId;
+        const broadNFT = await getTokenInfo(broadTokenId);
+        console.log("Broad NFT:", broadNFT);
+        
+        const targetedNFT = await getTokenInfo(targetedTokenId);
+        const nftContainer = document.getElementById("locked-nfts");
+        nftContainer.innerHTML = `
+            <div class="nft-card">
+                <h3>Broad Range</h3>
+                <img src="${broadNFT.jsonMetadata.image}" alt="Broad NFT" class="sponsee-nft-image">
+                <p>${broadTokenId}</p>
+            </div>
+            <div class="nft-card">
+                <h3>Targeted Range</h3>
+                <img src="${targetedNFT.jsonMetadata.image}" alt="Targeted NFT" class="sponsee-nft-image">
+                <p>${targetedTokenId}</p>
+            </div>
+        `;
     } else {
         document.getElementById("claim-amount").innerText = "NA";
     }
