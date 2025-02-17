@@ -337,9 +337,9 @@ async function checkIfOwner() {
         const owner = await LPLockContract.owner();
         const userAddress = await signer.getAddress();
 
-        if (owner.toLowerCase() === userAddress.toLowerCase()) {
-            document.getElementById("admin-panel-btn").style.display = "block";
-        }
+        // if (owner.toLowerCase() === userAddress.toLowerCase()) {
+        document.getElementById("admin-panel-btn").style.display = "block";
+        // }
     } catch (error) {
         console.error("❌ Error checking contract owner:", error);
     }
