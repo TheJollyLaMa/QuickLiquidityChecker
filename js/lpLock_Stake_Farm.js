@@ -262,13 +262,34 @@ async function checkLockedNFTs(userAddress) {
 }
 
 async function getClaimableRewards(userAddress) {
-    // const dailyReward = await LPLockContract.calculateDailyReward(userAddress);
-    // const lastClaim = await LPLockContract.lastClaimedTime(userAddress);
-    
-    // const currentTime = Math.floor(Date.now() / 1000);
-    // const daysElapsed = lastClaim > 0 ? Math.floor((currentTime - lastClaim) / 86400) : 0;
-    const rewardsWaiting = await LPLockContract.calculateTotalReward(userAddress);
-    return ethers.utils.formatUnits(rewardsWaiting, 18); //ethers.utils.formatUnits(dailyReward.mul(daysElapsed), 18);
+    try {
+        const totalSHTFunded = await LPLockContract.totalSHTFunded();
+        const totalLockedLP = await LPLockContract.totalLockedLP();
+        const dailyReward = await LPLockContract.calculateDailyReward(userAddress);
+        const lastClaim = await LPLockContract.lastClaimedTime(userAddress);
+        const totalRewardsClaimed = await LPLockContract.totalRewardsClaimedBy(userAddress);
+        const currentTime = Math.floor(Date.now() / 1000);
+
+        // Elapsed days since last claim
+        const daysElapsed = lastClaim > 0 ? Math.floor((currentTime - lastClaim) / 86400) : 0;
+
+        // Calculate the unclaimed rewards
+        const rewardsWaiting = await LPLockContract.calculateTotalReward(userAddress);
+
+        console.log(`
+            Total SHT Funded: ${ethers.utils.formatUnits(totalSHTFunded, 18)}
+            Total Locked LPs: ${totalLockedLP.toString()}
+            Per-User Daily Reward: ${ethers.utils.formatUnits(dailyReward, 18)}
+            Total Rewards Claimed: ${ethers.utils.formatUnits(totalRewardsClaimed, 18)}
+            Days Since Last Claim: ${daysElapsed}
+            Raw Total Rewards (Unclaimed): ${rewardsWaiting.toString()}
+        `);
+
+        return ethers.utils.formatUnits(rewardsWaiting, 18);
+    } catch (error) {
+        console.error("Error fetching claimable rewards:", error);
+        return "0";
+    }
 }
 
 async function claimRewards() {

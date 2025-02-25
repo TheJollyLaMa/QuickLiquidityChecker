@@ -2,7 +2,7 @@ let provider, signer;
 
 const ALGEBRA_POSITION_MANAGER = "0x8eF88E4c7CfbbaC1C163f7eddd4B578792201de6";
 const POOL_CONTRACT_ADDRESS = "0xf1a9a6a83077b73f662211b3fdecfa0cf13ceec7";
-const LPLOCK_CONTRACT_ADDRESS = "0x168555CaA6731601E566E2b52C95B9CA247597dD"; //9th '0x3FC0A0ABd1b895D26fE6404B5332Ffc5e4796705'; //8th "0x43589D96FbA538570bDD0d1500bC09C9ee070194";//7th "0x52D60b724Cd1515BdD6B5c94472e118b9d954c58"; // 6th "0x3465Fd98C2572febdc0c4EAF9Ad0f9878349A2D1";//5th deployment "0x56643F2A8C75486C9521Ba6A985EdE92a5E36D27";// 4th deployment on polygon; "0x9769e8A1eD9731454C1C7b1E6dD0c327aD77545b" // third deployment on polygon // second deployment 1531 05Feb2025 on Polygon: 0x5be0F70e61B6842c126c17250F9f454103B72710 //first deployed 0435 05Feb2025 on polygon: 0x04A0d39e9E60981702B0F36d10F673943982369B
+const LPLOCK_CONTRACT_ADDRESS = "0x13123fcbc2AE4f5C8315B4471ad9cDf9B7e0f59c"; //"0x168555CaA6731601E566E2b52C95B9CA247597dD"; //9th '0x3FC0A0ABd1b895D26fE6404B5332Ffc5e4796705'; //8th "0x43589D96FbA538570bDD0d1500bC09C9ee070194";//7th "0x52D60b724Cd1515BdD6B5c94472e118b9d954c58"; // 6th "0x3465Fd98C2572febdc0c4EAF9Ad0f9878349A2D1";//5th deployment "0x56643F2A8C75486C9521Ba6A985EdE92a5E36D27";// 4th deployment on polygon; "0x9769e8A1eD9731454C1C7b1E6dD0c327aD77545b" // third deployment on polygon // second deployment 1531 05Feb2025 on Polygon: 0x5be0F70e61B6842c126c17250F9f454103B72710 //first deployed 0435 05Feb2025 on polygon: 0x04A0d39e9E60981702B0F36d10F673943982369B
 const SHT_CONTRACT_ADDRESS = "0x81cCeF6414D4CDbed9FD6Ea98c2D00105800cd78";
 
 let ALGEBRA_ABI = [];
@@ -27,7 +27,7 @@ async function loadABIs() {
         ALGEBRA_ABI = await (await fetch("abis/abi.json")).json();
         FACTORY_ABI = await (await fetch("abis/factory_abi.json")).json();
         POOL_ABI = await (await fetch("abis/pool_abi.json")).json();
-        LPLOCK_ABI = await (await fetch("abis/LPLock_Stake_and_Farm_v0.4_abi.json")).json();
+        LPLOCK_ABI = await (await fetch("abis/LPLock_Stake_and_Farm_v0.4.1_abi.json")).json();
         ERC20_ABI = await (await fetch("abis/erc20_abi.json")).json();
 
     } catch (error) {
