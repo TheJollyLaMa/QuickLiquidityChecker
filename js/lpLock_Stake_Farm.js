@@ -192,6 +192,7 @@ async function openSponseeModal() {
 
     if (isLocked) {
         const rewardAmount = await getClaimableRewards(userAddress);
+        console.log("Claimable Rewards:", rewardAmount);
         document.getElementById("claim-amount").innerText = rewardAmount;
         //  show nft's
         const student = await LPLockContract.students(userAddress);
@@ -263,31 +264,36 @@ async function checkLockedNFTs(userAddress) {
 
 async function getClaimableRewards(userAddress) {
     try {
+        if (!LPLockContract) {
+            console.error("❌ LPLockContract is not initialized.");
+            return "0";
+        }
+
         const totalSHTFunded = await LPLockContract.totalSHTFunded();
         const totalLockedLP = await LPLockContract.totalLockedLP();
         const dailyReward = await LPLockContract.calculateDailyReward(userAddress);
-        const lastClaim = await LPLockContract.lastClaimedTime(userAddress);
-        const totalRewardsClaimed = await LPLockContract.totalRewardsClaimedBy(userAddress);
+        const lastClaim = (await LPLockContract.students(userAddress)).lastClaimed; // ✅ Changed this
+        const totalRewardsClaimed = (await LPLockContract.students(userAddress)).totalRewardsClaimed; // ✅ Changed this
         const currentTime = Math.floor(Date.now() / 1000);
 
         // Elapsed days since last claim
         const daysElapsed = lastClaim > 0 ? Math.floor((currentTime - lastClaim) / 86400) : 0;
 
-        // Calculate the unclaimed rewards
+        // ✅ New Calculation - Check ABI for Changes
         const rewardsWaiting = await LPLockContract.calculateTotalReward(userAddress);
 
         console.log(`
-            Total SHT Funded: ${ethers.utils.formatUnits(totalSHTFunded, 18)}
-            Total Locked LPs: ${totalLockedLP.toString()}
-            Per-User Daily Reward: ${ethers.utils.formatUnits(dailyReward, 18)}
-            Total Rewards Claimed: ${ethers.utils.formatUnits(totalRewardsClaimed, 18)}
-            Days Since Last Claim: ${daysElapsed}
-            Raw Total Rewards (Unclaimed): ${rewardsWaiting.toString()}
+            ✅ Total SHT Funded: ${ethers.utils.formatUnits(totalSHTFunded, 18)}
+            ✅ Total Locked LPs: ${totalLockedLP.toString()}
+            ✅ Per-User Daily Reward: ${ethers.utils.formatUnits(dailyReward, 18)}
+            ✅ Total Rewards Claimed: ${ethers.utils.formatUnits(totalRewardsClaimed, 18)}
+            ✅ Days Since Last Claim: ${daysElapsed}
+            ✅ Raw Total Rewards (Unclaimed): ${rewardsWaiting.toString()}
         `);
 
         return ethers.utils.formatUnits(rewardsWaiting, 18);
     } catch (error) {
-        console.error("Error fetching claimable rewards:", error);
+        console.error("❌ Error fetching claimable rewards:", error);
         return "0";
     }
 }
