@@ -1,0 +1,911 @@
+[
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_positionManager",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_rewardToken",
+				"type": "address"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			}
+		],
+		"name": "OwnableInvalidOwner",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "OwnableUnauthorizedAccount",
+		"type": "error"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "int24",
+				"name": "tickLower",
+				"type": "int24"
+			},
+			{
+				"indexed": false,
+				"internalType": "int24",
+				"name": "tickUpper",
+				"type": "int24"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint128",
+				"name": "liquidity",
+				"type": "uint128"
+			},
+			{
+				"indexed": false,
+				"internalType": "int24",
+				"name": "broadLower",
+				"type": "int24"
+			},
+			{
+				"indexed": false,
+				"internalType": "int24",
+				"name": "broadUpper",
+				"type": "int24"
+			},
+			{
+				"indexed": false,
+				"internalType": "int24",
+				"name": "targetedLower",
+				"type": "int24"
+			},
+			{
+				"indexed": false,
+				"internalType": "int24",
+				"name": "targetedUpper",
+				"type": "int24"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "requiredA",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "requiredB",
+				"type": "uint256"
+			}
+		],
+		"name": "DebugLiquidityCheck",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "reason",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint128",
+				"name": "actual",
+				"type": "uint128"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "expected",
+				"type": "uint256"
+			}
+		],
+		"name": "DebugLiquidityFailure",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "student",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "broadTokenId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "targetedTokenId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "lockDays",
+				"type": "uint256"
+			}
+		],
+		"name": "LPDeposited",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "student",
+				"type": "address"
+			}
+		],
+		"name": "LPWithdrawn",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "newDuration",
+				"type": "uint256"
+			}
+		],
+		"name": "LockDurationUpdated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "previousOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "operator",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "bytes",
+				"name": "data",
+				"type": "bytes"
+			}
+		],
+		"name": "Received_LP_Token",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "student",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "RewardsClaimed",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "sponsor",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "note",
+				"type": "string"
+			}
+		],
+		"name": "RewardsFunded",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "RewardsWithdrawn",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "rangeType",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "int24",
+				"name": "newLowerTick",
+				"type": "int24"
+			},
+			{
+				"indexed": false,
+				"internalType": "int24",
+				"name": "newUpperTick",
+				"type": "int24"
+			}
+		],
+		"name": "TickRangeUpdated",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "abortAllAndReturnLP",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "broadRange",
+		"outputs": [
+			{
+				"internalType": "int24",
+				"name": "lower",
+				"type": "int24"
+			},
+			{
+				"internalType": "int24",
+				"name": "upper",
+				"type": "int24"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_student",
+				"type": "address"
+			}
+		],
+		"name": "calculateDailyReward",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_student",
+				"type": "address"
+			}
+		],
+		"name": "calculateTotalReward",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "checkLPType",
+		"outputs": [
+			{
+				"internalType": "uint8",
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "claimRewards",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "broadTokenId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "targetedTokenId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "lockDays",
+				"type": "uint256"
+			}
+		],
+		"name": "depositLP",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_note",
+				"type": "string"
+			}
+		],
+		"name": "depositRewards",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "forceReturnLP",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getAllSponsors",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "address",
+						"name": "sponsorAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amountFunded",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "note",
+						"type": "string"
+					}
+				],
+				"internalType": "struct LP_Lock_Stake_and_Farm.Sponsor[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "lockDuration",
+				"type": "uint256"
+			}
+		],
+		"name": "getMultiplier",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_student",
+				"type": "address"
+			}
+		],
+		"name": "isWhitelisted",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "operator",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "data",
+				"type": "bytes"
+			}
+		],
+		"name": "onERC721Received",
+		"outputs": [
+			{
+				"internalType": "bytes4",
+				"name": "",
+				"type": "bytes4"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "positionManager",
+		"outputs": [
+			{
+				"internalType": "contract IUniswapV3Positions",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "renounceOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "requiredLiquidity_A",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "requiredLiquidity_B",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "rewardPeriod",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "rewardToken",
+		"outputs": [
+			{
+				"internalType": "contract IERC20",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "sponsors",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "sponsorAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amountFunded",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "note",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "students",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "broadTokenId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "targetedTokenId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "unlockTime",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "rewardMultiplier",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "lastClaimed",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalRewardsClaimed",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "whitelisted",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "targetedRange",
+		"outputs": [
+			{
+				"internalType": "int24",
+				"name": "lower",
+				"type": "int24"
+			},
+			{
+				"internalType": "int24",
+				"name": "upper",
+				"type": "int24"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalLockedLP",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalSHTFunded",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "int24",
+				"name": "_newLowerTick",
+				"type": "int24"
+			},
+			{
+				"internalType": "int24",
+				"name": "_newUpperTick",
+				"type": "int24"
+			}
+		],
+		"name": "updateBroadRangeTicks",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_newA",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_newB",
+				"type": "uint256"
+			}
+		],
+		"name": "updateMinRequiredLiquidity",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_newPeriod",
+				"type": "uint256"
+			}
+		],
+		"name": "updateRewardPeriod",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "int24",
+				"name": "_newLowerTick",
+				"type": "int24"
+			},
+			{
+				"internalType": "int24",
+				"name": "_newUpperTick",
+				"type": "int24"
+			}
+		],
+		"name": "updateTargetedRangeTicks",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "whitelistedAddresses",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "whitelistedNFTs",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "withdrawLP",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "withdrawUnclaimedRewards",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+]
