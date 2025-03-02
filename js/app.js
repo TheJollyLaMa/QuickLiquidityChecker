@@ -64,107 +64,118 @@ function updatePriceDisplay(price) {
     priceElement.textContent = `${price} USDGLO/OMMM`;
 }
 
-// ✅ Define 12 NFTs for each bowl
-const exampleNFTs = {
-    broadRange: [150879, 150880, 150881, 150882, 150883, 150884, 150885, 150886, 150887, 150888, 150889, 150890],
-    targetedRange: [150843, 150844, 150845, 150846, 150847, 150848, 150849, 150850, 150851, 150852, 150853, 150854]
-};
 
 // ✅ Load and Display NFTs in Two Bowls
 async function loadLiquidityNFTs() {
     try {
-        console.log("Fetching LP NFT IDs from the contract...");
+        console.log("📡 Loading whitelisted LP NFTs...");
+        const nftData = await getWhitelistedNFTs(); // ✅ Updated
 
-        const positionManager = new ethers.Contract(ALGEBRA_POSITION_MANAGER, ALGEBRA_ABI, provider);
-        const signerAddress = await signer.getAddress();
-
-        // ✅ Fetch the number of NFTs owned by the user
-        const balance = await positionManager.balanceOf(signerAddress);
-        const tokenIds = [];
-
-        for (let i = 0; i < balance; i++) {
-            const tokenId = await positionManager.tokenOfOwnerByIndex(signerAddress, i);
-            tokenIds.push(tokenId.toString());
+        if (nftData.length === 0) {
+            console.warn("⚠️ No whitelisted NFTs found.");
+            return;
         }
 
-        console.log("✅ Fetched LP Token IDs:", tokenIds);
+        const nftMetadata = await Promise.all(nftData.map(nft => getNFTData(nft.tokenId)));
 
-        // ✅ Fetch NFT metadata for visualization
-        const nftData = await Promise.all(tokenIds.map(getNFTData));
-
-        nftData.forEach((nft, index) => {
+        nftMetadata.forEach((nft, index) => {
             if (nft) {
-                displayNFT(`lp-nft-${index}`, nft.image, `lp-nft-${index}`);
+                console.log(`✅ Displaying NFT ${nftData[index].tokenId} in bowl...`);
+                displayNFT(nft.image, nftData[index].type);
             }
         });
 
         setTimeout(positionNFTs, 1000);
-
     } catch (error) {
-        console.error("❌ Error fetching real LP NFTs:", error);
+        console.error("❌ Error fetching whitelisted LP NFTs:", error);
     }
 }
 
 // ✅ Display NFT at Correct Position in the Bowl
-function displayNFT(id, imageUrl, className) {
+function displayNFT(imageUrl, type) {
     const imgElement = document.createElement("img");
     imgElement.src = imageUrl;
     imgElement.alt = "Liquidity NFT";
-    
-    // Ensure inner NFTs get the correct class
-    if (className.includes("targeted-range")) {
-        imgElement.classList.add("liquidity-nft", "targeted-range-nft", className);
+    imgElement.classList.add("liquidity-nft");
+
+    if (type === "targeted") {
+        imgElement.classList.add("targeted-range-nft");
+        const container = document.querySelector("#innerLpNFTs");
+        if (!container) {
+            console.error("❌ Targeted NFT container not found.");
+            return;
+        }
+        container.appendChild(imgElement);
     } else {
-        imgElement.classList.add("liquidity-nft", "broad-range-nft", className);
+        imgElement.classList.add("broad-range-nft");
+        const container = document.querySelector("#outerLpNFTs");
+        if (!container) {
+            console.error("❌ Broad NFT container not found.");
+            return;
+        }
+        container.appendChild(imgElement);
+    }
+}
+
+function positionNFTs() {
+    const outerContainer = document.querySelector("#outerLpNFTs");
+    const innerContainer = document.querySelector("#innerLpNFTs");
+
+    if (!outerContainer || !innerContainer) {
+        console.error("❌ Missing NFT containers.");
+        return;
     }
 
-    document.querySelector(".chart-container").appendChild(imgElement);
-}
+    const outerRect = outerContainer.getBoundingClientRect();
+    const innerRect = innerContainer.getBoundingClientRect();
 
-// ✅ Function to Calculate NFT Positions Along Semi-Circle
-function calculateNFTPosition(index, total, radius, containerCenterX, containerCenterY) {
-    const angle = Math.PI - (index / (total - 1)) * Math.PI; // Maps from 0 to π (180 degrees)
-    const x = containerCenterX + radius * Math.cos(angle);
-    const y = containerCenterY + radius * Math.sin(angle);
-    const rotationAngle = (angle * 180) / Math.PI - 90;
-    return { x, y, rotationAngle };
-}
+    const centerX = outerRect.width / 2; // ✅ Center X for both circles
+    const baseYOuter = outerRect.height; // ✅ Bottom of outer circle
+    const baseYInner = innerRect.height; // ✅ Bottom of inner circle
 
-// ✅ Function to Position NFTs Dynamically
-function positionNFTs() {
-    const container = document.querySelector(".chart-container");
-    const containerRect = container.getBoundingClientRect();
-    const containerCenterX = containerRect.width / 2.01;
-    const containerCenterY = containerRect.height / 1.83;
+    const broadNFTs = document.querySelectorAll(".broad-range-nft");
+    const targetedNFTs = document.querySelectorAll(".targeted-range-nft");
 
-    const outerRadius = containerRect.width * 0.635; // Keep outer radius large
-    const innerRadius = containerRect.width * 0.385; // Reduce inner radius
+    const totalSets = Math.max(broadNFTs.length, targetedNFTs.length);
 
-    exampleNFTs.broadRange.forEach((tokenId, index) => {
-        const nftElement = document.querySelector(`.broad-range-nft-${index + 1}`);
-        if (nftElement) {
-            const { x, y, rotationAngle } = calculateNFTPosition(index, 12, outerRadius, containerCenterX, containerCenterY);
-            nftElement.style.left = `${x - 1}px`;
-            nftElement.style.bottom = `${containerRect.height - y - 38}px`;
-            nftElement.style.transform = `translateX(-50%) rotate(${rotationAngle}deg)`;
+    if (totalSets === 0) {
+        console.warn("⚠️ No NFTs found.");
+        return;
+    }
+
+    console.log(`📍 Positioning ${totalSets} sets of NFTs...`);
+
+    for (let i = 0; i < totalSets; i++) {
+        const angle = Math.PI + ((Math.PI / (totalSets - 1)) * i); // ✅ Upward Arc
+
+        // ✅ Position Broad NFT (Outer Arc)
+        if (broadNFTs[i]) {
+            const broadX = centerX + Math.cos(angle) * (outerRect.width * 0.35);
+            const broadY = baseYOuter - Math.sin(angle) * (outerRect.width * 0.35);
+
+            broadNFTs[i].style.left = `${broadX}px`;
+            broadNFTs[i].style.top = `${broadY}px`;
+            broadNFTs[i].style.transform = "translate(-50%, -50%)";
+            broadNFTs[i].style.width = "75px";
+            broadNFTs[i].style.zIndex = "10";
         }
-    });
 
-    exampleNFTs.targetedRange.forEach((tokenId, index) => {
-        const nftElement = document.querySelector(`.targeted-range-nft-${index + 1}`);
-        if (nftElement) {
-            const { x, y, rotationAngle } = calculateNFTPosition(index, 12, innerRadius, containerCenterX, containerCenterY);
-            nftElement.style.left = `${x - 2}px`;
-            nftElement.style.bottom = `${containerRect.height - y - 14}px`;
-            nftElement.style.transform = `translateX(-50%) rotate(${rotationAngle}deg)`;
-            
-            // ✅ Force Smaller Size Here
-            nftElement.style.width = "42px";
-            nftElement.style.maxWidth = "42px";
-            nftElement.style.maxHeight = "60px";
+        // ✅ Position Targeted NFT (Inner Arc)
+        if (targetedNFTs[i]) {
+            const targetedX = centerX + Math.cos(angle) * (innerRect.width * 0.3);
+            const targetedY = baseYInner - Math.sin(angle) * (innerRect.width * 0.3);
+
+            targetedNFTs[i].style.left = `${targetedX}px`;
+            targetedNFTs[i].style.top = `${targetedY}px`;
+            targetedNFTs[i].style.transform = "translate(-50%, -50%)";
+            targetedNFTs[i].style.width = "35px";  
+            targetedNFTs[i].style.zIndex = "15";
         }
-    });
+    }
+
+    console.log("✅ `positionNFTs()` correctly aligned NFTs in an **UPWARD arc**.");
 }
+
 // ✅ Global Function to Fetch NFT Data
 async function getNFTData(tokenId) {
     try {
@@ -198,6 +209,54 @@ async function checkLiquidity() {
     }
 }
 
+async function getWhitelistedNFTs() {
+    try {
+        console.log("📡 Fetching whitelisted NFT IDs from `students` mapping...");
+
+        // Initialize contract
+        const contract = new ethers.Contract(LPLOCK_CONTRACT_ADDRESS, LPLOCK_ABI, provider);
+
+        // Get whitelisted addresses
+        const whitelistedAddresses = [];
+        let totalLockedLP = await contract.totalLockedLP();
+
+        for (let i = 0; i < totalLockedLP; i++) {
+            const address = await contract.whitelistedAddresses(i);
+            whitelistedAddresses.push(address);
+        }
+
+        console.log(`✅ Found ${whitelistedAddresses.length} whitelisted users.`);
+
+        // Fetch all locked NFT data
+        let nftData = [];
+
+        for (let address of whitelistedAddresses) {
+            const studentInfo = await contract.students(address);
+            
+            if (studentInfo.broadTokenId > 0) {
+                nftData.push({
+                    tokenId: studentInfo.broadTokenId.toString(),
+                    type: "broad"
+                });
+                console.log(`🔒 Broad NFT locked by ${address}:`, studentInfo.broadTokenId.toString());
+            }
+            if (studentInfo.targetedTokenId > 0) {
+                nftData.push({
+                    tokenId: studentInfo.targetedTokenId.toString(),
+                    type: "targeted"
+                });
+                console.log(`🔒 Targeted NFT locked by ${address}:`, studentInfo.targetedTokenId.toString());
+            }
+        }
+
+        console.log(`✅ Found ${nftData.length} locked NFTs:`, nftData);
+        return nftData; // ✅ Return array of objects with `tokenId` and `type`
+    } catch (error) {
+        console.error("❌ Error fetching whitelisted NFTs from students mapping:", error);
+        return [];
+    }
+}
+
 // ✅ Wait for Page Load
 document.addEventListener("DOMContentLoaded", async function () {
     await initializeProvider();
@@ -211,6 +270,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // ✅ Load NFTs
     await loadLiquidityNFTs();
+
+    // position NFTs
+    positionNFTs();
 
     // ✅ Fetch Current Price
     await getCurrentTick();
@@ -228,4 +290,5 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
     setInterval(getCurrentTick, 30000);
+    
 });
