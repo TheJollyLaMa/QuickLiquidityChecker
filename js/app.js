@@ -69,7 +69,7 @@ function updatePriceDisplay(price) {
 async function loadLiquidityNFTs() {
     try {
         console.log("📡 Loading whitelisted LP NFTs...");
-        const nftData = await getWhitelistedNFTs(); // ✅ Updated
+        const nftData = await getWhitelistedNFTs();
 
         if (nftData.length === 0) {
             console.warn("⚠️ No whitelisted NFTs found.");
@@ -129,15 +129,14 @@ function positionNFTs() {
     const outerRect = outerContainer.getBoundingClientRect();
     const innerRect = innerContainer.getBoundingClientRect();
 
-    const centerX = outerRect.width / 2; // ✅ Center X for both circles
-    const baseYOuter = outerRect.height; // ✅ Bottom of outer circle
-    const baseYInner = innerRect.height; // ✅ Bottom of inner circle
+    const centerX = outerRect.width / 2;
+    const baseYOuter = outerRect.height + 80;  // Bottom of outer bowl
+    const baseYInner = innerRect.height - 35;  // Bottom of inner bowl
 
     const broadNFTs = document.querySelectorAll(".broad-range-nft");
     const targetedNFTs = document.querySelectorAll(".targeted-range-nft");
 
     const totalSets = Math.max(broadNFTs.length, targetedNFTs.length);
-
     if (totalSets === 0) {
         console.warn("⚠️ No NFTs found.");
         return;
@@ -145,35 +144,52 @@ function positionNFTs() {
 
     console.log(`📍 Positioning ${totalSets} sets of NFTs...`);
 
+    const broadArcSpread = 0.24;  // Adjusted arc spread for outer NFTs
+    const targetedArcSpread = 0.17;  // Adjusted arc spread for inner NFTs
+
+    const broadRadius = outerRect.height * 0.9; // Outer arc radius
+    const targetedRadius = innerRect.height * 0.6; // Inner arc radius (closer grouping)
+
     for (let i = 0; i < totalSets; i++) {
-        const angle = Math.PI + ((Math.PI / (totalSets - 1)) * i); // ✅ Upward Arc
+        const broadAngle = totalSets === 1 
+            ? Math.PI / 2 
+            : (Math.PI / 2 - broadArcSpread / 2) + (broadArcSpread * i / (totalSets - 1));
 
-        // ✅ Position Broad NFT (Outer Arc)
+        const targetedAngle = totalSets === 1
+            ? Math.PI / 2
+            : (Math.PI / 2 - targetedArcSpread / 2) + (targetedArcSpread * i / (totalSets - 1));
+
+        // Calculate rotation angles and correct flipping on the left side
+        let broadRotation = Math.atan2(-Math.cos(broadAngle), Math.sin(broadAngle)) * (180 / Math.PI);
+
+        let targetedRotation = Math.atan2(-Math.cos(targetedAngle), Math.sin(targetedAngle)) * (180 / Math.PI);
+
+        // Position Broad NFT (Outer Arc)
         if (broadNFTs[i]) {
-            const broadX = centerX + Math.cos(angle) * (outerRect.width * 0.35);
-            const broadY = baseYOuter - Math.sin(angle) * (outerRect.width * 0.35);
+            const x = centerX + broadRadius * Math.cos(broadAngle);
+            const y = (baseYOuter - broadRadius) + broadRadius * Math.sin(broadAngle);
 
-            broadNFTs[i].style.left = `${broadX}px`;
-            broadNFTs[i].style.top = `${broadY}px`;
-            broadNFTs[i].style.transform = "translate(-50%, -50%)";
+            broadNFTs[i].style.left = `${x}px`;
+            broadNFTs[i].style.top = `${y}px`;
+            broadNFTs[i].style.transform = `translate(-50%, -50%) rotate(${broadRotation}deg)`;
             broadNFTs[i].style.width = "75px";
             broadNFTs[i].style.zIndex = "10";
         }
 
-        // ✅ Position Targeted NFT (Inner Arc)
+        // Position Targeted NFT (Inner Arc)
         if (targetedNFTs[i]) {
-            const targetedX = centerX + Math.cos(angle) * (innerRect.width * 0.3);
-            const targetedY = baseYInner - Math.sin(angle) * (innerRect.width * 0.3);
+            const x = centerX + targetedRadius * Math.cos(targetedAngle);
+            const y = (baseYInner - targetedRadius) + targetedRadius * Math.sin(targetedAngle);
 
-            targetedNFTs[i].style.left = `${targetedX}px`;
-            targetedNFTs[i].style.top = `${targetedY}px`;
-            targetedNFTs[i].style.transform = "translate(-50%, -50%)";
-            targetedNFTs[i].style.width = "35px";  
+            targetedNFTs[i].style.left = `${x}px`;
+            targetedNFTs[i].style.top = `${y}px`;
+            targetedNFTs[i].style.transform = `translate(-50%, -50%) rotate(${targetedRotation}deg)`;
+            targetedNFTs[i].style.width = "35px";
             targetedNFTs[i].style.zIndex = "15";
         }
     }
 
-    console.log("✅ `positionNFTs()` correctly aligned NFTs in an **UPWARD arc**.");
+    console.log("✅ `positionNFTs()` aligned and **correctly tilted** NFTs along the arc.");
 }
 
 // ✅ Global Function to Fetch NFT Data
